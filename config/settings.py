@@ -30,6 +30,7 @@ INSTALLED_APPS = [
 
 INSTALLED_APPS += [
     "users.apps.UsersConfig",
+    "tracker.apps.TrackerConfig",
 ]
 
 
