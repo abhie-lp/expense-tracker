@@ -2,4 +2,4 @@ __pycache__
 .idea
 *.env
 !default.env
-*db
+*.sqlite3
