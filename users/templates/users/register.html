@@ -1,12 +1,12 @@
 {% extends "base.html" %}
 
-{% block title %}Login{% endblock title %}
+{% block title %}Register{% endblock title %}
 {% block content %}
-  <div class="row" style="margin-top: 130px;">
+  <div class="row" style="margin-top: 110px;">
     <div class="col-sm-12 col-lg-8 mx-auto">
       <div class="card">
         <div class="card-header fw-bolder">
-          Login
+          Register
         </div>
         <div class="card-body">
           <form method="post">
@@ -29,6 +29,26 @@
                 >
               </div>
             </div>
+
+            <div class="mb-3">
+              <label for="id_email" class="form-label">
+                {{ form.email.label }}
+              </label>
+              <div class="input-group">
+                <div class="input-group-text">
+                  <i class="fas fa-at"></i>
+                </div>
+                <input
+                    type="email"
+                    class="form-control"
+                    id="id_email"
+                    name="{{ form.email.html_name }}"
+                    required
+                    placeholder="Enter your email"
+                >
+              </div>
+            </div>
+
             <div class="mb-3">
               <label for="id_password"
                      class="form-label">{{ form.password.label }}</label>
