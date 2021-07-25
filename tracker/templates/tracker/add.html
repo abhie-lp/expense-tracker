@@ -4,7 +4,7 @@
 
 {% block content %}
   <div class="row">
-    <div class="col-sm-12 col-md-6">
+    <div class="col-12 col-lg-6">
       <h3 class="h3">Add expense</h3>
       <form method="post">
         {% csrf_token %}
@@ -122,9 +122,9 @@
       </form>
     </div>
 
-    <hr class="d-md-none my-3" />
+    <hr class="d-lg-none my-3" />
 
-    <div class="col-sm-12 col-md-4">
+    <div class="col-12 col-lg-4">
       <h3 class="h3">Previous 10 expenses</h3>
       <div class="table-responsive">
         <table class="table table-sm  table-hover table-borderless">
@@ -152,15 +152,27 @@
       </div>
     </div>
 
-    <hr class="d-md-none my-3" />
+    <hr class="d-lg-none my-3" />
 
-    <div class="col-sm-12 col-md-2">
+    <div class="col-12 col-lg-2">
       <h3 class="h3">Overview</h3>
-      {% include 'tracker/snippets/overview_cards.html' with header="This Month" amount=this_month bg_color="bg-primary bg-gradient" %}
-      {% include 'tracker/snippets/overview_cards.html' with header="Last Month" amount=last_month bg_color="bg-success bg-gradient" %}
-      {% include 'tracker/snippets/overview_cards.html' with header="Last 3 Months" amount=3_months bg_color="bg-light bg-gradient" %}
-      {% include 'tracker/snippets/overview_cards.html' with header="This Year" amount=this_year bg_color="bg-info bg-gradient" %}
-      {% include 'tracker/snippets/overview_cards.html' with header="Last Year" amount=last_year bg_color="bg-warning bg-gradient" %}
+      <div class="row">
+        <div class="col-4 col-lg-12">
+          {% include 'tracker/snippets/overview_cards.html' with header="This Month" amount=this_month bg_color="bg-primary bg-gradient" %}
+        </div>
+        <div class="col-4 col-lg-12">
+          {% include 'tracker/snippets/overview_cards.html' with header="Last Month" amount=last_month bg_color="bg-success bg-gradient" %}
+        </div>
+        <div class="col-4 col-lg-12">
+          {% include 'tracker/snippets/overview_cards.html' with header="Last 3 Months" amount=3_months bg_color="bg-light bg-gradient" %}
+        </div>
+        <div class="col-4 col-lg-12">
+          {% include 'tracker/snippets/overview_cards.html' with header="This Year" amount=this_year bg_color="bg-info bg-gradient" %}
+        </div>
+        <div class="col-4 col-lg-12">
+          {% include 'tracker/snippets/overview_cards.html' with header="Last Year" amount=last_year bg_color="bg-warning bg-gradient" %}
+        </div>
+      </div>
     </div>
   </div>
 {% endblock content %}
