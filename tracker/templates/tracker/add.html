@@ -5,7 +5,7 @@
 {% block content %}
   <div class="row">
     <div class="col-sm-12 col-md-6">
-      <h2 class="h2">Add expense</h2>
+      <h3 class="h3">Add expense</h3>
       <form method="post">
         {% csrf_token %}
         <div class="row">
@@ -124,13 +124,37 @@
     <hr class="d-md-none my-3" />
 
     <div class="col-sm-12 col-md-4">
-      <h2 class="h2">Previous 10 expenses</h2>
+      <h3 class="h3">Previous 10 expenses</h3>
+      <div class="table-responsive">
+        <table class="table table-sm  table-hover table-borderless">
+          <thead class="table-light">
+            <tr>
+              <th>Date</th>
+              <th>Amount</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for exp in previous_10 %}
+              <tr>
+                <td style="font-size: 13px">{{ exp.date }}</td>
+                <td style="font-size: 13px">{{ exp.amount }}</td>
+                <td style="font-size: 13px" class="text-break">{{ exp.description|slice:30 }}</td>
+              </tr>
+            {% empty %}
+              <tr>
+                <td colspan="3">Nothing to show here</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
     </div>
 
     <hr class="d-md-none my-3" />
 
     <div class="col-sm-12 col-md-2">
-      <h2 class="h2">Overview</h2>
+      <h3 class="h3">Overview</h3>
     </div>
   </div>
 {% endblock content %}

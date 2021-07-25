@@ -57,7 +57,7 @@ class Expense(models.Model):
     user = models.ForeignKey(User, db_index=True, on_delete=models.CASCADE)
     amount = models.FloatField()
     description = models.CharField(max_length=128, null=True, blank=True)
-    date = models.DateField(default=date.today)
+    date = models.DateField(default=date.today, db_index=True)
     category = models.ForeignKey(Category, db_index=True, on_delete=models.SET_NULL, null=True)
     method = models.CharField("Payment Method", choices=PAYMENT_METHOD, db_index=True, max_length=4)
     app = models.CharField("Application", choices=APPS, max_length=4, blank=True, null=True)
