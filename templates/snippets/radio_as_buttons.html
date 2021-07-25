@@ -1,0 +1,7 @@
+{% for choice in options %}
+  {{ choice.tag }}
+  <label class="btn {{ btn_color }} ms-1 fw-bold mb-1"
+         for="{{ id_label }}_{{ forloop.counter0 }}">
+    {{ choice.choice_label }}
+  </label>
+{% endfor %}
