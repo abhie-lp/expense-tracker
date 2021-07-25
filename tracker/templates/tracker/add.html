@@ -73,6 +73,7 @@
                       id="{{ description.auto_id }}"
                       name="{{ description.html_name }}"
                       rows="2"
+                      maxlength="128"
                       required
                       placeholder="Enter your description"
                   >{{ description.value | default_if_none:"" }}</textarea>
@@ -117,7 +118,7 @@
             <p>{{ form.non_field_errors }}</p>
           </div>
         {% endif %}
-        <button class="btn btn-dark fw-bold w-100" type="submit">Submit</button>
+        <button class="btn btn-success fw-bold w-100" type="submit">Submit</button>
       </form>
     </div>
 
@@ -137,13 +138,13 @@
           <tbody>
             {% for exp in previous_10 %}
               <tr>
-                <td style="font-size: 13px">{{ exp.date }}</td>
-                <td style="font-size: 13px">{{ exp.amount }}</td>
-                <td style="font-size: 13px" class="text-break">{{ exp.description|slice:30 }}</td>
+                <td style="font-size: 14px">{{ exp.date | date:"Y-m-d" }}</td>
+                <td style="font-size: 14px">{{ exp.amount }}</td>
+                <td style="font-size: 14px" class="text-break">{{ exp.description|slice:30 }}</td>
               </tr>
             {% empty %}
               <tr>
-                <td colspan="3">Nothing to show here</td>
+                <td class="text-center" colspan="3">Nothing to show here</td>
               </tr>
             {% endfor %}
           </tbody>
@@ -155,6 +156,11 @@
 
     <div class="col-sm-12 col-md-2">
       <h3 class="h3">Overview</h3>
+      {% include 'tracker/snippets/overview_cards.html' with header="This Month" amount=this_month bg_color="bg-primary bg-gradient" %}
+      {% include 'tracker/snippets/overview_cards.html' with header="Last Month" amount=last_month bg_color="bg-success bg-gradient" %}
+      {% include 'tracker/snippets/overview_cards.html' with header="Last 3 Months" amount=3_months bg_color="bg-light bg-gradient" %}
+      {% include 'tracker/snippets/overview_cards.html' with header="This Year" amount=this_year bg_color="bg-info bg-gradient" %}
+      {% include 'tracker/snippets/overview_cards.html' with header="Last Year" amount=last_year bg_color="bg-warning bg-gradient" %}
     </div>
   </div>
 {% endblock content %}
