@@ -6,7 +6,6 @@ from django.shortcuts import render, redirect
 from django.db.models import Sum
 from django.contrib.auth.decorators import login_required
 
-from utils.datetime import year_month_before, YearMonth
 from .forms import ExpenseForm
 from .models import Expense
 
@@ -24,34 +23,27 @@ def add_expense_view(request):
             return redirect("add_expense")
     else:
         form = ExpenseForm(request)
-    previous_10 = Expense.objects\
-        .filter(user_id=request.user.id) \
-        .order_by("-date", "-id") \
-        .only("amount", "date", "description")[:10]
+    latest_10 = Expense.objects.latest_expenses(request.user.id)
 
-    this_month = Expense.objects.filter(
-        user_id=request.user.id, date__month=today.month, date__year=today.year
+    this_month = Expense.objects.month_expense(
+        today.month, today.year, request.user.id
     ).aggregate(Sum("amount"))
 
     last_month_date = today.replace(day=1) - timedelta(1)
-    last_month = Expense.objects.filter(
-        user_id=request.user.id, date__month=last_month_date.month, date__year=last_month_date.year
+    last_month = Expense.objects.month_expense(
+        last_month_date.month, last_month_date.year, request.user.id
     ).aggregate(Sum("amount"))
 
-    year_month: YearMonth = year_month_before(3)
-    last_3_months = Expense.objects.filter(
-        user_id=request.user.id, date__month__gte=year_month.month, date__year__gte=year_month.year,
-        date__month__lte=last_month_date.month, date__year__lte=last_month_date.year
-    ).aggregate(Sum("amount"))
+    last_3_months = Expense.objects.last_n_months_expense(3, request.user.id)\
+        .aggregate(Sum("amount"))
 
-    this_year = Expense.objects.filter(
-        user_id=request.user.id, date__year=today.year
-    ).aggregate(Sum("amount"))
-    last_year = Expense.objects.filter(
-        user_id=request.user.id, date__year=today.year - 1
-    ).aggregate(Sum("amount"))
+    this_year = Expense.objects.year_expense(today.year, request.user.id)\
+        .aggregate(Sum("amount"))
+    last_year = Expense.objects.year_expense(today.year - 1, request.user.id)\
+        .aggregate(Sum("amount"))
+
     return render(request, "tracker/add.html", {
-        "form": form, "previous_10": previous_10, "3_months": last_3_months["amount__sum"],
+        "form": form, "latest_10": latest_10, "3_months": last_3_months["amount__sum"],
         "this_year": this_year["amount__sum"], "last_month": last_month["amount__sum"],
         "this_month": this_month["amount__sum"], "last_year": last_year["amount__sum"]
     })

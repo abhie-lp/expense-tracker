@@ -4,6 +4,8 @@ from datetime import date
 from django.db import models
 from users.models import User
 
+from .managers import ExpenseManager
+
 PAYMENT_METHOD = (
     ("UPI", "UPI"),
     ("CASH", "Cash"),
@@ -62,6 +64,8 @@ class Expense(models.Model):
     method = models.CharField("Payment Method", choices=PAYMENT_METHOD, db_index=True, max_length=4)
     app = models.CharField("Application", choices=APPS, max_length=4, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
+
+    objects = ExpenseManager()
 
     def __str__(self):
         return f"Expense<amount={self.amount}, category={self.category.name}, description=" \

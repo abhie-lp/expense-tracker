@@ -125,7 +125,7 @@
     <hr class="d-lg-none my-3" />
 
     <div class="col-12 col-lg-4">
-      <h3 class="h3">Previous 10 expenses</h3>
+      <h3 class="h3">Latest 10 expenses</h3>
       <div class="table-responsive">
         <table class="table table-sm  table-hover table-borderless">
           <thead class="table-light">
@@ -136,7 +136,7 @@
             </tr>
           </thead>
           <tbody>
-            {% for exp in previous_10 %}
+            {% for exp in latest_10 %}
               <tr>
                 <td style="font-size: 14px">{{ exp.date | date:"Y-m-d" }}</td>
                 <td style="font-size: 14px">{{ exp.amount }}</td>
