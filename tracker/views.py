@@ -3,11 +3,31 @@
 from datetime import date, timedelta
 
 from django.shortcuts import render, redirect
-from django.db.models import Sum
+from django.db.models import Sum, QuerySet
 from django.contrib.auth.decorators import login_required
 
 from .forms import ExpenseForm
-from .models import Expense
+from .models import Expense, APPS, PAYMENT_METHOD
+
+
+APP_DICT = dict(APPS)
+METHOD_DICT = dict(PAYMENT_METHOD)
+
+
+@login_required
+def expense_history(request):
+    """View to return expense history"""
+    qs: QuerySet = Expense.objects.latest_expenses(request.user.id, 150)
+    qs = qs.values_list(
+        "date", "amount", "description", "category__name", "method", "app"
+    )
+    qs_list = []
+    if qs:
+        for q in qs:
+            qs_list.append([
+                q[0], q[1], q[2], q[3], METHOD_DICT[q[4]], APP_DICT.get(q[5], "Other")
+            ])
+    return render(request, "tracker/history.html", {"qs": qs_list})
 
 
 @login_required

@@ -9,6 +9,7 @@ from tracker.views import add_expense_view
 
 urlpatterns = [
     path("user/", include("users.urls", namespace="users")),
+    path("expense/", include("tracker.urls", namespace="expense")),
     path('admin/', admin.site.urls),
     path("", add_expense_view, name="add_expense"),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
