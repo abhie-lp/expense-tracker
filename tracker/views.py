@@ -18,6 +18,7 @@ METHOD_DICT = dict(PAYMENT_METHOD)
 def expense_history(request):
     """View to return expense history"""
     qs: QuerySet = Expense.objects.latest_expenses(request.user.id, 150)
+    file_title: str = f"{date.today()} - Latest_150_Expenses"
     qs = qs.values_list(
         "date", "amount", "description", "category__name", "method", "app"
     )
@@ -27,7 +28,7 @@ def expense_history(request):
             qs_list.append([
                 q[0], q[1], q[2], q[3], METHOD_DICT[q[4]], APP_DICT.get(q[5], "Other")
             ])
-    return render(request, "tracker/history.html", {"qs": qs_list})
+    return render(request, "tracker/history.html", {"qs": qs_list, "file_title": file_title})
 
 
 @login_required
