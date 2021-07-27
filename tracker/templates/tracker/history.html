@@ -10,7 +10,116 @@
 
 {% block content %}
   <div class="row">
-    <div class="col-12 col-lg-2">Form</div>
+    <div class="col-12 col-lg-2">
+      <h3 class="h3 text-center">Get Expense</h3>
+      <div class="row">
+        <div class="col-12">
+          <h6 class="h6 fw-bold">For Previous Months</h6>
+          <form id="form_previous_months">
+            <div class="row">
+              <div class="col-7">
+                <div class="input-group input-group-sm">
+                  {{ form.p_months }}
+                </div>
+              </div>
+              <div class="col-5">
+                <button class="w-100 btn btn-success btn-sm" type="submit">
+                  Get
+                </button>
+              </div>
+            </div>
+            <input type="hidden" name="target" value="months"/>
+          </form>
+        </div>
+        <hr class="my-2"/>
+
+        <div class="col-12">
+          <h6 class="h6 fw-bold">For Date</h6>
+          <form id="form_date">
+            <div class="row">
+              <div class="col-8">
+                <div class="input-group input-group-sm">
+                  {{ form.date1 }}
+                </div>
+              </div>
+              <div class="col-4">
+                <button class="w-100 btn btn-success btn-sm" type="submit">
+                  Get
+                </button>
+              </div>
+            </div>
+            <input type="hidden" name="target" value="date"/>
+          </form>
+        </div>
+        <hr class="my-2"/>
+
+        <div class="col-12">
+          <h6 class="h6 fw-bold">For Month and Year</h6>
+          <form id="form_for_month">
+            <input type="hidden" name="target" value="month"/>
+            <div class="row">
+              <div class="col-6">
+                <div class="input-group input-group-sm">
+                  {{ form.month }}
+                </div>
+              </div>
+              <div class="col-6">
+                <div class="input-group input-group-sm">
+                  {{ form.year }}
+                </div>
+              </div>
+              <div class="col-12 mt-1">
+                <button class="w-100 btn btn-success btn-sm" type="submit">
+                  Get
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+        <hr class="my-2"/>
+
+        <div class="col-12">
+          <h6 class="h6 fw-bold">For Year</h6>
+          <form id="form_for_year">
+            <input type="hidden" name="target" value="year"/>
+            <div class="row">
+              <div class="col-7">
+                <div class="input-group input-group-sm">
+                  {{ form.year }}
+                </div>
+              </div>
+              <div class="col-5">
+                <button class="w-100 btn btn-success btn-sm" type="submit">
+                  Get
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+        <hr class="my-2"/>
+
+        <div class="col-12">
+          <h6 class="h6 fw-bold">Between</h6>
+          <form id="form_between">
+            <input type="hidden" name="target" value="between"/>
+            <div class="mb-2">
+              <div class="input-group input-group-sm">
+                <span class="input-group-text">Start</span>
+                {{ form.date1 }}
+              </div>
+            </div>
+            <div class="mb-2">
+              <div class="input-group input-group-sm">
+                <span class="input-group-text">End</span>
+                {{ form.date2 }}
+              </div>
+            </div>
+            <button class="w-100 btn btn-success btn-sm" type="submit">Get
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
     <div class="col-12 col-lg-10">
       <h3 class="h3 text-center">Expenses Data</h3>
       <table id="expense_history"
@@ -41,9 +150,12 @@
 {% endblock content %}
 
 {% block script %}
-  <script type="text/javascript" src="{% static 'vendor/js/pdfmake.min.js' %}"></script>
-  <script type="text/javascript" src="{% static 'vendor/js/vfs_fonts.js' %}"></script>
-  <script type="text/javascript" src="{% static 'vendor/js/bs5-datatables.min.js' %}"></script>
+  <script type="text/javascript"
+          src="{% static 'vendor/js/pdfmake.min.js' %}"></script>
+  <script type="text/javascript"
+          src="{% static 'vendor/js/vfs_fonts.js' %}"></script>
+  <script type="text/javascript"
+          src="{% static 'vendor/js/bs5-datatables.min.js' %}"></script>
   <script type="text/javascript">
     $(document).ready(function () {
       $('#expense_history').DataTable({

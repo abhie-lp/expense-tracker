@@ -6,7 +6,7 @@ from django.shortcuts import render, redirect
 from django.db.models import Sum, QuerySet
 from django.contrib.auth.decorators import login_required
 
-from .forms import ExpenseForm
+from .forms import ExpenseForm, ExpenseHistory
 from .models import Expense, APPS, PAYMENT_METHOD
 
 
@@ -19,7 +19,25 @@ def expense_history(request):
     """View to return expense history"""
     qs: QuerySet = Expense.objects.latest_expenses(request.user.id, 150)
     file_title: str = f"{date.today()} - Latest_150_Expenses"
-    qs = qs.values_list(
+    form = ExpenseHistory(request.GET)
+    if form.is_valid():
+        cd: dict = form.cleaned_data
+        target: str = cd["target"]
+        user_id = request.user.id
+        if target == "date":
+            qs = Expense.objects.filter(date=cd["date1"], user_id=user_id)
+        elif target == "months":
+            qs = Expense.objects.last_n_months_expense(cd["p_months"], user_id)
+        elif target == "month":
+            qs = Expense.objects.month_expense(cd["month"], cd["year"], user_id)
+        elif target == "year":
+            qs = Expense.objects.year_expense(cd["year"], user_id)
+        elif target == "between":
+            qs = Expense.objects.filter(date__gte=cd["date1"], date__lte=cd["date2"],
+                                        user__id=user_id)
+    else:
+        print(form.errors)
+    qs = qs.order_by("-date", "-id").values_list(
         "date", "amount", "description", "category__name", "method", "app"
     )
     qs_list = []
@@ -28,7 +46,8 @@ def expense_history(request):
             qs_list.append([
                 q[0], q[1], q[2], q[3], METHOD_DICT[q[4]], APP_DICT.get(q[5], "Other")
             ])
-    return render(request, "tracker/history.html", {"qs": qs_list, "file_title": file_title})
+    return render(request, "tracker/history.html",
+                  {"qs": qs_list, "file_title": file_title, "form": form})
 
 
 @login_required
