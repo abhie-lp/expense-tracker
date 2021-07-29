@@ -6,7 +6,7 @@ from django.forms import Form, ModelForm, ModelChoiceField, RadioSelect, ChoiceF
 from django.db.models import Q
 from .models import Expense, Category, PAYMENT_METHOD, APPS
 
-MONTH = (("", "Month"),) + tuple((ind, mon) for ind, mon in enumerate((
+MONTH = tuple((ind, mon) for ind, mon in enumerate((
     "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
 ), 1))
 
@@ -15,10 +15,8 @@ class ExpenseHistory(Form):
     """Form to filter expenses of a user"""
     p_months = IntegerField(min_value=1, max_value=36, initial=3, required=False)
     month = ChoiceField(choices=MONTH, required=False)
-    year = ChoiceField(
-        choices=(("", "Year"),) + tuple((y, y) for y in range(date.today().year, 1999, -1)),
-        required=False
-    )
+    year = ChoiceField(choices=tuple((y, y) for y in range(date.today().year, 1999, -1)),
+                       required=False)
     date1 = DateField(widget=DateInput(
         attrs={"type": "date", "class": "form-control", "required": True}
     ), required=False)
@@ -41,7 +39,7 @@ class ExpenseHistory(Form):
         if target == "months":
             if not 0 < int(cd["p_months"]) <= 36:
                 raise ValidationError("Number of months should be between 1 and 36")
-        elif target == "month":
+        elif target == "month" or target == "each_month":
             if not 1 <= int(cd["month"]) <= 12 and \
                     not 2000 <= int(cd["year"]) <= date.today().year:
                 raise ValidationError("Enter month between Jan and Dec and Year between 2000 and "

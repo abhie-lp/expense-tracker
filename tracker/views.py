@@ -8,6 +8,7 @@ from django.contrib.auth.decorators import login_required
 
 from .forms import ExpenseForm, ExpenseHistory
 from .models import Expense, APPS, PAYMENT_METHOD
+from django.db import connections
 
 
 APP_DICT = dict(APPS)
@@ -17,7 +18,7 @@ METHOD_DICT = dict(PAYMENT_METHOD)
 @login_required
 def expense_history(request):
     """View to return expense history"""
-    qs: QuerySet = Expense.objects.latest_expenses(request.user.id, 150)
+    qs: QuerySet = Expense.objects.by_user(request.user.id)
     file_title: str = f"{date.today()} - Latest_150_Expenses"
     form = ExpenseHistory(request.GET)
     if form.is_valid():
@@ -26,8 +27,14 @@ def expense_history(request):
         user_id = request.user.id
         if target == "date":
             qs = Expense.objects.filter(date=cd["date1"], user_id=user_id)
+        elif target == "each_month":
+            qs = Expense.objects.filter(date__month=cd["month"], user_id=user_id)
         elif target == "months":
             qs = Expense.objects.last_n_months_expense(cd["p_months"], user_id)
+            if qs:
+                pass
+            for q in connections["default"].queries:
+                print(q, end="\n\n")
         elif target == "month":
             qs = Expense.objects.month_expense(cd["month"], cd["year"], user_id)
         elif target == "year":
@@ -40,6 +47,8 @@ def expense_history(request):
     qs = qs.order_by("-date", "-id").values_list(
         "date", "amount", "description", "category__name", "method", "app"
     )
+    if not form.is_valid():
+        qs = qs[:150]
     qs_list = []
     if qs:
         for q in qs:
@@ -63,7 +72,10 @@ def add_expense_view(request):
             return redirect("add_expense")
     else:
         form = ExpenseForm(request)
-    latest_10 = Expense.objects.latest_expenses(request.user.id)
+    latest_10 = Expense.objects\
+        .by_user(request.user.id)\
+        .order_by("-date", "-id")\
+        .only("amount", "date", "description")[:10]
 
     this_month = Expense.objects.month_expense(
         today.month, today.year, request.user.id

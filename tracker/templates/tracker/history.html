@@ -13,16 +13,16 @@
     <div class="col-12 col-lg-2">
       <h3 class="h3 text-center">Get Expense</h3>
       <div class="row">
-        <div class="col-12">
+        <div class="col-6 col-lg-12">
           <h6 class="h6 fw-bold">For Previous Months</h6>
           <form id="form_previous_months">
             <div class="row">
-              <div class="col-7">
+              <div class="col-8">
                 <div class="input-group input-group-sm">
                   {{ form.p_months }}
                 </div>
               </div>
-              <div class="col-5">
+              <div class="col-4">
                 <button class="w-100 btn btn-success btn-sm" type="submit">
                   Get
                 </button>
@@ -31,9 +31,10 @@
             <input type="hidden" name="target" value="months"/>
           </form>
         </div>
-        <hr class="my-2"/>
 
-        <div class="col-12">
+        <hr class="d-none d-lg-block my-1">
+
+        <div class="col-6 col-lg-12">
           <h6 class="h6 fw-bold">For Date</h6>
           <form id="form_date">
             <div class="row">
@@ -51,24 +52,20 @@
             <input type="hidden" name="target" value="date"/>
           </form>
         </div>
-        <hr class="my-2"/>
 
-        <div class="col-12">
-          <h6 class="h6 fw-bold">For Month and Year</h6>
-          <form id="form_for_month">
-            <input type="hidden" name="target" value="month"/>
+        <hr class="d-none d-lg-block my-1">
+
+        <div class="col-6 col-lg-12">
+          <h6 class="h6 fw-bold">For every month</h6>
+          <form id="form_each_month">
+            <input type="hidden" name="target" value="each_month"/>
             <div class="row">
-              <div class="col-6">
+              <div class="col-8">
                 <div class="input-group input-group-sm">
                   {{ form.month }}
                 </div>
               </div>
-              <div class="col-6">
-                <div class="input-group input-group-sm">
-                  {{ form.year }}
-                </div>
-              </div>
-              <div class="col-12 mt-1">
+              <div class="col-4">
                 <button class="w-100 btn btn-success btn-sm" type="submit">
                   Get
                 </button>
@@ -76,19 +73,20 @@
             </div>
           </form>
         </div>
-        <hr class="my-2"/>
 
-        <div class="col-12">
+        <hr class="d-none d-lg-block my-1">
+
+        <div class="col-6 col-lg-12">
           <h6 class="h6 fw-bold">For Year</h6>
           <form id="form_for_year">
             <input type="hidden" name="target" value="year"/>
             <div class="row">
-              <div class="col-7">
+              <div class="col-8">
                 <div class="input-group input-group-sm">
                   {{ form.year }}
                 </div>
               </div>
-              <div class="col-5">
+              <div class="col-4">
                 <button class="w-100 btn btn-success btn-sm" type="submit">
                   Get
                 </button>
@@ -96,34 +94,92 @@
             </div>
           </form>
         </div>
-        <hr class="my-2"/>
 
-        <div class="col-12">
+        <hr class="d-none d-lg-block my-1">
+
+        <div class="col-12 col-md-6 col-lg-12">
+          <h6 class="h6 fw-bold">For Month and Year</h6>
+          <form id="form_for_month">
+            <input type="hidden" name="target" value="month"/>
+            <div class="row">
+              <div class="col-4 col-lg-6">
+                <div class="input-group input-group-sm">
+                  {{ form.month }}
+                </div>
+              </div>
+              <div class="col-4 col-lg-6">
+                <div class="input-group input-group-sm">
+                  {{ form.year }}
+                </div>
+              </div>
+              <div class="col-4 col-lg-12 mt-1">
+                <button class="w-100 btn btn-success btn-sm" type="submit">
+                  Get
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+
+        <hr class="d-none d-lg-block my-1">
+
+        <div class="col-12 col-md-6 col-lg-12">
           <h6 class="h6 fw-bold">Between</h6>
           <form id="form_between">
             <input type="hidden" name="target" value="between"/>
-            <div class="mb-2">
-              <div class="input-group input-group-sm">
-                <span class="input-group-text">Start</span>
-                {{ form.date1 }}
+            <div class="row">
+              <div class="col-4 col-lg-12">
+                <div class="input-group input-group-sm">
+                  <span class="input-group-text">Start</span>
+                  {{ form.date1 }}
+                </div>
               </div>
-            </div>
-            <div class="mb-2">
-              <div class="input-group input-group-sm">
-                <span class="input-group-text">End</span>
-                {{ form.date2 }}
+
+              <div class="col-4 col-lg-12">
+                <div class="input-group input-group-sm">
+                  <span class="input-group-text">End</span>
+                  {{ form.date2 }}
+                </div>
               </div>
+
+              <div class="col-4 col-lg-12 mt-1">
+                <button class="w-100 btn btn-success btn-sm" type="submit">Get</button>
+              </div>
+
             </div>
-            <button class="w-100 btn btn-success btn-sm" type="submit">Get
-            </button>
+
           </form>
         </div>
       </div>
+{#      <div class="row">#}
+{#        <div class="col-12">#}
+{#        </div>#}
+{#        <hr class="my-2"/>#}
+{##}
+{#        <div class="col-12">#}
+
+{#        </div>#}
+{#        <hr class="my-2"/>#}
+{##}
+{#        <div class="col-12">#}
+
+{#        </div>#}
+{#        <hr class="my-2"/>#}
+{##}
+{#        <div class="col-12">#}
+
+{#        </div>#}
+{#        <hr class="my-2"/>#}
+{##}
+{#        <div class="col-12">#}
+
+{#        </div>#}
+{#      </div>#}
     </div>
     <div class="col-12 col-lg-10">
       <h3 class="h3 text-center">Expenses Data</h3>
       <table id="expense_history"
-             class="table table-sm table-hover table-responsive table-responsive-sm table-light table-bordered">
+             class="table table-sm table-hover table-responsive table-responsive-sm responsive table-light table-bordered">
         <thead class="table-dark">
           <tr>
             <th>Date</th>
@@ -160,6 +216,7 @@
     $(document).ready(function () {
       $('#expense_history').DataTable({
         ordering: false,
+        responsive: true,
         scrollY: 370,
         lengthMenu: [25, 50, 75, 100],
         "dom": "<'row'<'col-sm-4'l><'col-sm-4'B><'col-sm-4 ms-n1'f>><'row'<'col-md-12't>><'row'<'col-md-6'i><'col-md-6'p>>",
