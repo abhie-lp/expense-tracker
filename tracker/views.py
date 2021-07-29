@@ -1,5 +1,6 @@
 """Views for tracker app"""
 
+import calendar
 from datetime import date, timedelta
 
 from django.shortcuts import render, redirect
@@ -8,7 +9,6 @@ from django.contrib.auth.decorators import login_required
 
 from .forms import ExpenseForm, ExpenseHistory
 from .models import Expense, APPS, PAYMENT_METHOD
-from django.db import connections
 
 
 APP_DICT = dict(APPS)
@@ -19,7 +19,7 @@ METHOD_DICT = dict(PAYMENT_METHOD)
 def expense_history(request):
     """View to return expense history"""
     qs: QuerySet = Expense.objects.by_user(request.user.id)
-    file_title: str = f"{date.today()} - Latest_150_Expenses"
+    file_title: str = "Latest_150_Expenses"
     form = ExpenseHistory(request.GET)
     if form.is_valid():
         cd: dict = form.cleaned_data
@@ -27,23 +27,23 @@ def expense_history(request):
         user_id = request.user.id
         if target == "date":
             qs = Expense.objects.filter(date=cd["date1"], user_id=user_id)
+            file_title = f'For_{cd["date1"]}'
         elif target == "each_month":
             qs = Expense.objects.filter(date__month=cd["month"], user_id=user_id)
+            file_title = f"Every_{calendar.month_name[cd['month']]}_Month"
         elif target == "months":
             qs = Expense.objects.last_n_months_expense(cd["p_months"], user_id)
-            if qs:
-                pass
-            for q in connections["default"].queries:
-                print(q, end="\n\n")
+            file_title = f"Last_{cd['p_months']}_months"
         elif target == "month":
             qs = Expense.objects.month_expense(cd["month"], cd["year"], user_id)
+            file_title = f'For_{calendar.month_name[cd["month"]]}-{cd["year"]}'
         elif target == "year":
             qs = Expense.objects.year_expense(cd["year"], user_id)
+            file_title = f"{cd['year']}"
         elif target == "between":
             qs = Expense.objects.filter(date__gte=cd["date1"], date__lte=cd["date2"],
                                         user__id=user_id)
-    else:
-        print(form.errors)
+            file_title = f'Between_{cd["date1"]}_{cd["date2"]}'
     qs = qs.order_by("-date", "-id").values_list(
         "date", "amount", "description", "category__name", "method", "app"
     )
@@ -55,6 +55,7 @@ def expense_history(request):
             qs_list.append([
                 q[0], q[1], q[2], q[3], METHOD_DICT[q[4]], APP_DICT.get(q[5], "Other")
             ])
+    file_title = f"{date.today()}_" + file_title
     return render(request, "tracker/history.html",
                   {"qs": qs_list, "file_title": file_title, "form": form})
 
