@@ -1,8 +1,8 @@
 """Forms for tracker app"""
 
 from datetime import date
-from django.forms import Form, ModelForm, ModelChoiceField, RadioSelect, ChoiceField, Textarea, \
-    DateField, IntegerField, DateInput, CharField, ValidationError
+from django.forms import Form, ModelForm, ModelChoiceField, RadioSelect, TypedChoiceField, \
+    DateField, IntegerField, DateInput, CharField, Textarea, ValidationError
 from django.db.models import Q
 from .models import Expense, Category, PAYMENT_METHOD, APPS
 
@@ -14,9 +14,9 @@ MONTH = tuple((ind, mon) for ind, mon in enumerate((
 class ExpenseHistory(Form):
     """Form to filter expenses of a user"""
     p_months = IntegerField(min_value=1, max_value=36, initial=3, required=False)
-    month = ChoiceField(choices=MONTH, required=False)
-    year = ChoiceField(choices=tuple((y, y) for y in range(date.today().year, 1999, -1)),
-                       required=False)
+    month = TypedChoiceField(choices=MONTH, required=False, coerce=int)
+    year = TypedChoiceField(choices=tuple((y, y) for y in range(date.today().year, 1999, -1)),
+                            required=False, coerce=int)
     date1 = DateField(widget=DateInput(
         attrs={"type": "date", "class": "form-control", "required": True}
     ), required=False)
@@ -37,15 +37,15 @@ class ExpenseHistory(Form):
         cd = self.cleaned_data
         target = cd["target"]
         if target == "months":
-            if not 0 < int(cd["p_months"]) <= 36:
+            if not 0 < cd["p_months"] <= 36:
                 raise ValidationError("Number of months should be between 1 and 36")
         elif target == "month" or target == "each_month":
-            if not 1 <= int(cd["month"]) <= 12 and \
-                    not 2000 <= int(cd["year"]) <= date.today().year:
+            if not 1 <= cd["month"] <= 12 and \
+                    not 2000 <= cd["year"] <= date.today().year:
                 raise ValidationError("Enter month between Jan and Dec and Year between 2000 and "
                                       "current year")
         elif target == "year":
-            if not 2000 <= int(cd["year"]) <= date.today().year:
+            if not 2000 <= cd["year"] <= date.today().year:
                 raise ValidationError("Enter year between 2000 and current year")
         elif target == "between":
             start, end = cd["date1"], cd["date2"]
