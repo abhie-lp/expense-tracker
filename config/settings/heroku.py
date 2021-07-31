@@ -7,3 +7,11 @@ SECRET_KEY = environ.get("SECRET_KEY", "set a secret key in environment.")
 DEBUG = environ.get("DEBUG", True) == "1"
 ALLOWED_HOSTS = environ.get("ALLOWED_HOSTS", "*").split()
 AUTH_PASSWORD_VALIDATORS = []
+DATABASES["default"] = {
+    'ENGINE': 'django.db.backends.postgresql',
+    'NAME': environ.get("PG_NAME"),
+    'USER': environ.get("PG_USER"),
+    'PASSWORD': environ.get("PG_PASSWORD"),
+    'HOST': environ.get("PG_HOST"),
+    'PORT': environ.get("PG_PORT"),
+}
