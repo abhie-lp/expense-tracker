@@ -13,3 +13,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path("", add_expense_view, name="add_expense"),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+
+if settings.DEBUG:
+    import debug_toolbar
+    urlpatterns.append(path("__debug__/", include(debug_toolbar.urls)))
