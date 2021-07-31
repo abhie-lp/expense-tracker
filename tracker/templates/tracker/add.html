@@ -131,22 +131,28 @@
           <thead class="table-light">
             <tr>
               <th>Date</th>
-              <th>Amount</th>
               <th>Description</th>
+              <th>Amount</th>
             </tr>
           </thead>
           <tbody>
             {% for exp in latest_10 %}
               <tr>
-                <td style="font-size: 14px">{{ exp.date | date:"Y-m-d" }}</td>
-                <td style="font-size: 14px">{{ exp.amount }}</td>
+                <td style="font-size: 14px">{{ exp.date }}</td>
                 <td style="font-size: 14px" class="text-break">{{ exp.description|slice:30 }}</td>
+                <td style="font-size: 14px">{{ exp.amount }}</td>
               </tr>
             {% empty %}
               <tr>
                 <td class="text-center" colspan="3">Nothing to show here</td>
               </tr>
             {% endfor %}
+            {% if latest_10 %}
+              <tr>
+                <td colspan="2" class="fw-bolder">Total</td>
+                <td class="fw-bolder">{{ latest_10_sum }}</td>
+              </tr>
+            {% endif %}
           </tbody>
         </table>
       </div>

@@ -45,7 +45,7 @@ def expense_history(request):
                                         user__id=user_id)
             file_title = f'Between_{cd["date1"]}_{cd["date2"]}'
     qs = qs.order_by("-date", "-id").values_list(
-        "date", "amount", "description", "category__name", "method", "app"
+        "date", "description", "category__name", "method", "app", "amount",
     )
     if not form.is_valid():
         qs = qs[:150]
@@ -53,7 +53,7 @@ def expense_history(request):
     if qs:
         for q in qs:
             qs_list.append([
-                q[0], q[1], q[2], q[3], METHOD_DICT[q[4]], APP_DICT.get(q[5], "Other")
+                q[0], q[1], q[2], METHOD_DICT[q[3]], APP_DICT.get(q[4], "Other"), q[5]
             ])
     file_title = f"{date.today()}_" + file_title
     return render(request, "tracker/history.html",
@@ -77,6 +77,7 @@ def add_expense_view(request):
         .by_user(request.user.id)\
         .order_by("-date", "-id")\
         .only("amount", "date", "description")[:10]
+    latest_10_total = latest_10.aggregate(Sum("amount"))
 
     this_month = Expense.objects.month_expense(
         today.month, today.year, request.user.id
@@ -98,5 +99,6 @@ def add_expense_view(request):
     return render(request, "tracker/add.html", {
         "form": form, "latest_10": latest_10, "3_months": last_3_months["amount__sum"],
         "this_year": this_year["amount__sum"], "last_month": last_month["amount__sum"],
-        "this_month": this_month["amount__sum"], "last_year": last_year["amount__sum"]
+        "this_month": this_month["amount__sum"], "last_year": last_year["amount__sum"],
+        "latest_10_sum": latest_10_total["amount__sum"]
     })

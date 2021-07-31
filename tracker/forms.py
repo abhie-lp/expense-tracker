@@ -2,7 +2,7 @@
 
 from datetime import date
 from django.forms import Form, ModelForm, ModelChoiceField, RadioSelect, TypedChoiceField, \
-    DateField, IntegerField, DateInput, CharField, Textarea, ValidationError
+    DateField, IntegerField, DateInput, CharField, Textarea, ValidationError, ChoiceField
 from django.db.models import Q
 from .models import Expense, Category, PAYMENT_METHOD, APPS
 

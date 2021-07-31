@@ -143,7 +143,9 @@
               </div>
 
               <div class="col-4 col-lg-12 mt-1">
-                <button class="w-100 btn btn-success btn-sm" type="submit">Get</button>
+                <button class="w-100 btn btn-success btn-sm" type="submit">
+                  Get
+                </button>
               </div>
 
             </div>
@@ -155,18 +157,18 @@
 
     <hr class="d-lg-none my-2">
 
-    <div class="col-12 col-lg-10">
+    <div class="col-12 col-lg-10 px-lg-4">
       <h3 class="h3 text-center">Expenses Data</h3>
       <table id="expense_history"
-             class="table table-sm table-hover table-responsive table-responsive-sm responsive table-light table-bordered">
+             class="table table-sm table-hover table-responsive table-responsive-sm responsive table-light table-bordered text-center">
         <thead class="table-dark">
           <tr>
             <th>Date</th>
-            <th>Amount</th>
             <th>Description</th>
             <th>Category</th>
             <th>Method</th>
             <th>App</th>
+            <th>Amount</th>
           </tr>
         </thead>
 
@@ -179,7 +181,18 @@
             </tr>
           {% endfor %}
         </tbody>
+        <tfoot>
+          <tr>
+            <th style="text-align: center; border-right: none">Total</th>
+            <th style="border-right: none; border-left: none">&nbsp;</th>
+            <th style="border-right: none; border-left: none">&nbsp;</th>
+            <th style="border-right: none; border-left: none">&nbsp;</th>
+            <th style="border-left: none">&nbsp;</th>
+            <th style="text-align: center"></th>
+          </tr>
+        </tfoot>
       </table>
+    <span class="hide" id="table_amount_total"></span>
     </div>
   </div>
 {% endblock content %}
@@ -193,31 +206,98 @@
           src="{% static 'vendor/js/bs5-datatables.min.js' %}"></script>
   <script type="text/javascript">
     $(document).ready(function () {
-      $('#expense_history').DataTable({
+      var table = $('#expense_history').DataTable({
         ordering: false,
         responsive: true,
-        scrollY: 370,
-        lengthMenu: [25, 50, 75, 100],
+        scrollY: "55vh",
+        scrollCollapse: true,
+        lengthMenu: [[25, 50, 100, -1], [25, 50, 100, "All"]],
         "dom": "<'row'<'col-sm-4'l><'col-sm-4'B><'col-sm-4 ms-n1'f>><'row'<'col-md-12't>><'row'<'col-md-6'i><'col-md-6'p>>",
         buttons: [
           {
-            extend: 'csv',
+            extend: 'csvHtml5',
             title: '{{ file_title }}',
-            className: 'me-1'
+            className: 'me-1 btn-primary btn-sm'
           },
           {
-            extend: 'pdf',
+            extend: 'pdfHtml5',
             title: '{{ file_title }}',
-            className: "me-1"
+            className: "me-1 btn-primary btn-sm",
+            customize: function (doc) {
+
+              // Modify footer element for PDF to show only Total of rows
+              // Get last row in the table
+              const table_footer_row = doc.content[1].table.body.pop();
+              // Get the last data in the last row of table
+              const table_footer_row_last = table_footer_row.pop();
+              // Assign the total amount to attribute property of last element
+              table_footer_row_last.text = document.getElementById("table_amount_total").textContent;
+
+              // Push the last data to row and row to table
+              table_footer_row.push(table_footer_row_last);
+              doc.content[1].table.body.push(table_footer_row);
+
+              // Style the table
+              {#doc.content[1].margin = [ 40, 0, 10, 0 ]#}
+              doc.pageMargins = [100, 0, 0, 0];
+              doc.styles.tableHeader.fontSize = 9;
+              doc.styles.tableFooter.fontSize = 7;
+              doc.styles.tableBodyEven.fontSize = 7
+              doc.styles.tableBodyOdd.fontSize = 7
+              doc.content[1].table.widths = ["auto", "auto", "auto", "auto", "auto", 50]
+              // Remove spaces around page title
+              doc.content[0].text = doc.content[0].text.trim();
+            },
+            footer: true
           },
           {
             extend: 'print',
             title: '{{ file_title }}',
+            className: "me-1 btn-primary btn-sm",
           }
         ],
         columnDefs: [
-          {targets: [1], searchable: false},
-        ]
+          {targets: [5], searchable: false},
+        ],
+        "footerCallback": function (row, data, start, end, display) {
+          var api = this.api();
+
+          // Remove the formatting to get integer data for summation
+          let intVal = function (i) {
+            return typeof i === 'string' ?
+                i.replace(/[\$,]/g, '') * 1 :
+                typeof i === 'number' ?
+                    i : 0;
+          };
+
+          // Total over all pages
+          let total = api
+              .column(5, {filter: 'applied'})
+              .data()
+              .reduce(function (a, b) {
+                return intVal(a) + intVal(b);
+              }, 0);
+
+          document.getElementById("table_amount_total").textContent = total;
+
+          // Update footer depending on number of pages
+          if (api.page.info().pages >> 1) {
+            // Total over this page
+            let pageTotal = api
+                .column(5, {page: 'current'})
+                .data()
+                .reduce(function (a, b) {
+                  return intVal(a) + intVal(b);
+                }, 0);
+            $(api.column(5).footer()).html(
+                '<i class="fa fa-rupee-sign"></i>&nbsp;' + pageTotal + '&nbsp;( <i class="fa fa-rupee-sign"></i>&nbsp;' + total + ' )'
+            );
+          } else {
+            $(api.column(5).footer()).html(
+                '<i class="fa fa-rupee-sign"></i>&nbsp;' + total
+            );
+          }
+        }
       });
     });
   </script>
