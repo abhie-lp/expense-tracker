@@ -1,0 +1,4 @@
+# Requirements for heroku
+# Import all from base
+-r base.txt
+psycopg2==2.9.1

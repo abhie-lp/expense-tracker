@@ -1,0 +1,5 @@
+# Requirements for development
+# Import all from base
+-r base.txt
+
+django-debug-toolbar==3.2.1
