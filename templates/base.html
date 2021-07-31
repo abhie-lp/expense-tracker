@@ -7,10 +7,7 @@
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Expense Tracker - {% block title %}{% endblock title %}</title>
-    <link rel="stylesheet" type="text/css"
-          href="{% static 'vendor/css/font-awesome.min.css' %}">
-    <link rel="stylesheet" type="text/css"
-          href="{% static 'vendor/css/bootstrap.min.css' %}">
+    {% include 'snippets/static/base_css.html' %}
     {% block style %}
     {% endblock style %}
   </head>
@@ -98,11 +95,7 @@
         document.getElementById(activeNavId).classList.add("active");
       })()
     </script>
-    <script type="text/javascript"
-            src="{% static 'vendor/js/jquery.min.js' %}"></script>
-    <script type="text/javascript"
-            src="{% static 'vendor/js/bootstrap.bundle.min.js' %}"></script>
-
+    {% include 'snippets/static/base_js.html' %}
     {% block script %}{% endblock script %}
   </body>
 </html>

@@ -4,8 +4,7 @@
 {% block title %}History{% endblock title %}
 
 {% block style %}
-  <link rel="stylesheet" type="text/css"
-        href="{% static 'vendor/css/bs5-datatables.min.css' %}"/>
+  {% include 'snippets/static/datatables_css.html' %}
 {% endblock style %}
 
 {% block content %}
@@ -181,7 +180,7 @@
             </tr>
           {% endfor %}
         </tbody>
-        <tfoot>
+        <tfoot class="table-secondary">
           <tr class="fw-light">
             <th style="text-align: center; border-right: none">Total</th>
             <th style="border-right: none; border-left: none">&nbsp;</th>
@@ -198,12 +197,7 @@
 {% endblock content %}
 
 {% block script %}
-  <script type="text/javascript"
-          src="{% static 'vendor/js/pdfmake.min.js' %}"></script>
-  <script type="text/javascript"
-          src="{% static 'vendor/js/vfs_fonts.js' %}"></script>
-  <script type="text/javascript"
-          src="{% static 'vendor/js/bs5-datatables.min.js' %}"></script>
+  {% include 'snippets/static/datatables_js.html' %}
   <script type="text/javascript">
     $(document).ready(function () {
       var table = $('#expense_history').DataTable({
@@ -295,9 +289,7 @@
                 pageTotal + '&nbsp;( ' + total + ' )'
             );
           } else {
-            $(api.column(5).footer()).html(
-                '<i class="fa fa-rupee-sign"></i>&nbsp;' + total
-            );
+            $(api.column(5).footer()).html(total);
           }
         }
       });
