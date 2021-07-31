@@ -182,7 +182,7 @@
           {% endfor %}
         </tbody>
         <tfoot>
-          <tr>
+          <tr class="fw-light">
             <th style="text-align: center; border-right: none">Total</th>
             <th style="border-right: none; border-left: none">&nbsp;</th>
             <th style="border-right: none; border-left: none">&nbsp;</th>
@@ -192,7 +192,7 @@
           </tr>
         </tfoot>
       </table>
-    <span class="hide" id="table_amount_total"></span>
+    <span class="d-none" id="table_amount_total"></span>
     </div>
   </div>
 {% endblock content %}
@@ -258,6 +258,8 @@
         ],
         columnDefs: [
           {targets: [5], searchable: false},
+          { responsivePriority: 1, targets: [0, 1, 5] },
+          { responsivePriority: 2, targets: [2, 3, 4] },
         ],
         "footerCallback": function (row, data, start, end, display) {
           var api = this.api();
@@ -290,7 +292,7 @@
                   return intVal(a) + intVal(b);
                 }, 0);
             $(api.column(5).footer()).html(
-                '<i class="fa fa-rupee-sign"></i>&nbsp;' + pageTotal + '&nbsp;( <i class="fa fa-rupee-sign"></i>&nbsp;' + total + ' )'
+                pageTotal + '&nbsp;( ' + total + ' )'
             );
           } else {
             $(api.column(5).footer()).html(
