@@ -1,7 +1,7 @@
 """Forms for tracker app"""
 
 from datetime import date
-from django.forms import Form, ModelForm, ModelChoiceField, RadioSelect, TypedChoiceField, \
+from django.forms import Form, ModelForm, RadioSelect, TypedChoiceField, \
     DateField, IntegerField, DateInput, CharField, Textarea, ValidationError, ChoiceField
 from django.db.models import Q
 from .models import Expense, Category, PAYMENT_METHOD, APPS
@@ -61,20 +61,20 @@ class ExpenseHistory(Form):
 
 class ExpenseForm(ModelForm):
     """Expense form to add new expense"""
+    category = ChoiceField(choices=(),
+                           widget=RadioSelect(attrs={"autocomplete": "off", "class": "btn-check"}))
 
     class Meta:
         model = Expense
-        fields = "amount", "description", "date", "category", "method", "app"
+        fields = "amount", "description", "date", "method", "app"
         widgets = {
             "description": Textarea()
         }
 
     def __init__(self, request, *args, **kwargs):
         super(ExpenseForm, self).__init__(*args, **kwargs)
-        self.fields["category"] = ModelChoiceField(
-            Category.objects.filter(Q(default=True) | Q(user=request.user)).only("id", "name"),
-            widget=RadioSelect(attrs={"autocomplete": "off", "class": "btn-check"})
-        )
+        self.fields["category"].choices = Category.objects.filter(
+            Q(default=True) | Q(user=request.user)).values_list("id", "name")
         self.fields["method"] = ChoiceField(choices=PAYMENT_METHOD, widget=RadioSelect(attrs={
             "autocomplete": "off", "class": "btn-check"
         }))

@@ -1,7 +1,7 @@
 """Views for tracker app"""
 
 import calendar
-from datetime import date, timedelta
+from datetime import date
 
 from django.shortcuts import render, redirect
 from django.db.models import Sum, QuerySet
@@ -63,12 +63,12 @@ def expense_history(request):
 @login_required
 def add_expense_view(request):
     """View add a expense"""
-    today = date.today()
     if request.method == "POST":
         form = ExpenseForm(request, request.POST)
         if form.is_valid():
             expense = form.save(commit=False)
             expense.user_id = request.user.id
+            expense.category_id = form.cleaned_data["category"]
             expense.save()
             return redirect("add_expense")
     else:
@@ -77,28 +77,16 @@ def add_expense_view(request):
         .by_user(request.user.id)\
         .order_by("-date", "-id")\
         .only("amount", "date", "description")[:10]
+
     latest_10_total = latest_10.aggregate(Sum("amount"))
-
-    this_month = Expense.objects.month_expense(
-        today.month, today.year, request.user.id
-    ).aggregate(Sum("amount"))
-
-    last_month_date = today.replace(day=1) - timedelta(1)
-    last_month = Expense.objects.month_expense(
-        last_month_date.month, last_month_date.year, request.user.id
-    ).aggregate(Sum("amount"))
-
+    this_last_month = Expense.objects.total_of_this_and_last_month(request.user.id)
     last_3_months = Expense.objects.last_n_months_expense(3, request.user.id)\
         .aggregate(Sum("amount"))
-
-    this_year = Expense.objects.year_expense(today.year, request.user.id)\
-        .aggregate(Sum("amount"))
-    last_year = Expense.objects.year_expense(today.year - 1, request.user.id)\
-        .aggregate(Sum("amount"))
+    this_last_year = Expense.objects.total_of_this_and_last_year(request.user.id)
 
     return render(request, "tracker/add.html", {
         "form": form, "latest_10": latest_10, "3_months": last_3_months["amount__sum"],
-        "this_year": this_year["amount__sum"], "last_month": last_month["amount__sum"],
-        "this_month": this_month["amount__sum"], "last_year": last_year["amount__sum"],
+        "this_month": this_last_month.this, "last_month": this_last_month.last,
+        "this_year": this_last_year.this, "last_year": this_last_year.last,
         "latest_10_sum": latest_10_total["amount__sum"]
     })
