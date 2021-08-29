@@ -32,7 +32,7 @@ class Category(models.Model):
     user: User who created the category
     default: If default will be visible to all users
     """
-    name = models.CharField(max_length=20)
+    name = models.CharField(max_length=20, db_index=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE, db_index=True, null=True, blank=True)
     default = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
