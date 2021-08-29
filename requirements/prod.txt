@@ -1,0 +1,5 @@
+# Requirements for production
+# Import all from base
+-r base.txt
+psycopg2==2.9.1
+gunicorn==20.1.0
