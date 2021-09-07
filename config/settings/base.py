@@ -17,6 +17,10 @@ INSTALLED_APPS = [
 ]
 
 INSTALLED_APPS += [
+    "rest_framework",
+]
+
+INSTALLED_APPS += [
     "users.apps.UsersConfig",
     "tracker.apps.TrackerConfig",
 ]
