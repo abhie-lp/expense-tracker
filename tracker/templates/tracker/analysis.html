@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+
+{% block title %}Analysis{% endblock title %}
+
+{% block content %}
+  <div class="row">
+    <div class="col-12 px-lg-4">
+      <h3 class="h3 text-center">Analysis Charts</h3>
+      <div class="row">
+
+        <div class="col-6 mb-1">
+          <div class="card">
+            <div class="card-body">
+              <h6 class="card-title">Category Expense in <span class="currentMonthName"></span></h6>
+              <canvas class="mx-auto" id="month_category" style="width: 100%" height="300"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-6 mb-1">
+          <div class="card">
+            <div class="card-body">
+              <h6 class="card-title">Daily Expense in <span class="currentMonthName"></span></h6>
+              <canvas class="" id="month_day" style="width: 100%" height="300"></canvas>
+            </div>
+          </div>
+        </div>
+        <div class="col-6 mb-1">
+          <div class="card">
+            <div class="card-body">
+              <h6 class="card-title">Expense in year category</h6>
+              <canvas class="mx-auto" id="year_category" style="width: 100%" height="300"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-6 mb-1">
+          <div class="card">
+            <div class="card-body">
+              <h6 class="card-title">Expense in year month</h6>
+              <canvas class="mx-auto" id="year_month" style="width: 100%" height="300"></canvas>
+            </div>
+          </div>
+        </div>
+        <div class="col-6">
+          Category comparison with last year
+          <canvas id="compare_last_year_category" style="width: 100%" height="300"></canvas>
+        </div>
+
+        <div class="col-6">
+          Monthly comparison with last year
+          <canvas id="compare_last_year_monthly" style="width: 100%" height="300"></canvas>
+        </div>
+        <div class="col-6">
+          <canvas id="last_year_month" style="width: 100%" height="300"></canvas>
+        </div>
+      </div>
+    </div>
+
+  </div>
+{% endblock content %}
+
+{% block script %}
+  <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.5.0/chart.min.js"
+      integrity="sha512-asxKqQghC1oBShyhiBwA+YgotaSYKxGP1rcSYTDrB0U6DxwlJjU59B67U8+5/++uFjcuVM8Hh5cokLjZlhm3Vg=="
+      crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  {% include 'tracker/snippets/analysis_js.html' %}
+{% endblock script %}

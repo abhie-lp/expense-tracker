@@ -1,0 +1,331 @@
+<script>
+  $(document).ready(function () {
+    const today = new Date()
+    const monthCategoryCanvas = "month_category"
+    const monthDayCanvas = "month_day"
+    const yearCategoryCanvas = "year_category"
+    const yearMonthCanvas = "year_month"
+    const compareLastYearCategoryCanvas = "compare_last_year_category"
+    const compareLastYearMonthlyCanvas = "compare_last_year_monthly"
+
+    const backgroundColors = [
+      'rgb(255, 99, 132)',
+      'rgb(54, 162, 235)',
+      'rgb(255, 205, 86)',
+      "rgba(120,120,190, .74)",
+      "rgba(190,248,190, .74)",
+      "rgba(229,43,80, .74)",
+      "rgba(255,191,0, .74)",
+      "rgba(164,198,57, .74)",
+      "rgba(251,206,177, .74)",
+      "rgba(127,255,212, .74)",
+      "rgba(233,214,107, .74)",
+      "rgba(178,190,181, .74)",
+      "rgba(0,127,255, .74)",
+      "rgba(222,93,131, .74)",
+      "rgba(195,33,72, .74)",
+      "rgba(205,127,50, .74)",
+      "rgba(120,134,107, .74)",
+      "rgba(15,77,146, .74)",
+      "rgba(143,0,255, .74)",
+      "rgba(91,146,229, .74)",
+      "rgba(0,117,94, .74)",
+      "rgba(242,133,0, .74)",
+      "rgba(167,252,0, .74)",
+      "rgba(236,213,64, .74)",
+      "rgba(255,103,0, .74)",
+      "rgba(230,226,0, .74)",
+      "rgba(147,197,114, .74)",
+      "rgba(255,90,54, .74)",
+      "rgba(124,252,0, .74)",
+      "rgba(215,59,62, .74)",
+      "rgba(255,223,0, .74)",
+      "rgba(21,96,189, .74)",
+      "rgba(105,105,105, .74)",
+      "rgba(0,139,139, .74)",
+    ]
+
+    const borderColors = [
+      'rgb(255, 99, 132)',
+      'rgb(54, 162, 235)',
+      'rgb(255, 205, 86)',
+      "rgba(93,138,168, 1)",
+      "rgba(240,248,255, 1)",
+      "rgba(229,43,80, 1)",
+      "rgba(255,191,0, 1)",
+      "rgba(164,198,57, 1)",
+      "rgba(251,206,177, 1)",
+      "rgba(127,255,212, 1)",
+      "rgba(233,214,107, 1)",
+      "rgba(178,190,181, 1)",
+      "rgba(0,127,255, 1)",
+      "rgba(222,93,131, 1)",
+      "rgba(195,33,72, 1)",
+      "rgba(205,127,50, 1)",
+      "rgba(120,134,107, 1)",
+      "rgba(15,77,146, 1)",
+      "rgba(143,0,255, 1)",
+      "rgba(91,146,229, 1)",
+      "rgba(0,117,94, 1)",
+      "rgba(242,133,0, 1)",
+      "rgba(167,252,0, 1)",
+      "rgba(236,213,64, 1)",
+      "rgba(255,103,0, 1)",
+      "rgba(230,226,0, 1)",
+      "rgba(147,197,114, 1)",
+      "rgba(255,90,54, 1)",
+      "rgba(124,252,0, 1)",
+      "rgba(215,59,62, 1)",
+      "rgba(255,223,0, 1)",
+      "rgba(21,96,189, 1)",
+      "rgba(105,105,105, 1)",
+      "rgba(0,139,139, 1)",
+    ]
+    const monthNames = [
+      null, 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+    ]
+    const monthFullNames = [
+      null, "January", "February", "March", "April", "May", "June", "July",
+      "August", "September", "October", "November", "December"
+    ]
+
+    const apiKeys = {
+      "day": "date__day",
+      "month": "date__month",
+      "category": "category__name",
+      "year": "date__year",
+      "total": "total"
+    }
+
+    const pieChart = (canvasId, displayLabel, chartLabels, chartData) => {
+      console.log(canvasId, displayLabel)
+      const chart = new Chart(document.getElementById(canvasId).getContext('2d'), {
+        type: 'pie',
+        data: {
+          labels: chartLabels,
+          datasets: [{
+            label: displayLabel,
+            data: chartData,
+            backgroundColor: backgroundColors,
+            borderColor: borderColors,
+            borderWidth: 1,
+            hoverOffset: 10
+          }]
+        },
+        options: {
+          responsive: false,
+          plugins: {
+            legend: {
+              display: true,
+              position: "right"
+            }
+          }
+        }
+      });
+      chart.update()
+    }
+
+    const simpleBarChart = (canvasId, displayLabel, chartLabels, chartData) => {
+      const chart = new Chart(document.getElementById(canvasId).getContext('2d'), {
+        type: 'bar',
+        data: {
+          labels: chartLabels,
+          datasets: [{
+            label: displayLabel,
+            data: chartData,
+            backgroundColor: backgroundColors,
+            borderColor: borderColors,
+            borderWidth: 1,
+            hoverOffset: 10
+          }]
+        },
+        options: {
+          responsive: false,
+        }
+      });
+      chart.update()
+    }
+
+    const comparisonBarChart = (canvasId, displayLabels, chartLabels, chartDatas) => {
+      const dataset = []
+      displayLabels.forEach((displayLabel, labelIndex) => {
+        dataset.push({
+          label: displayLabel,
+          data: chartDatas[labelIndex],
+          backgroundColor: backgroundColors[labelIndex],
+          borderColor: borderColors[labelIndex],
+          borderWidth: 1,
+        })
+      })
+      const chart = new Chart(document.getElementById(canvasId).getContext('2d'), {
+        type: 'bar',
+        data: {
+          labels: chartLabels,
+          datasets: dataset
+        },
+        options: {
+          responsive: false,
+        }
+      });
+      chart.update()
+    }
+
+    const getCategoryName = name => name != null ? name : "Other"
+    const getMonthName = name => monthNames[name]
+
+    const readyThisMonthlyChart = apiData => {
+      const dayMap = new Map()
+      const categoryMap = new Map()
+
+      const dayKey = apiKeys["day"]
+      const monthKey = apiKeys["month"]
+      const categoryKey = apiKeys["category"]
+      const totalKey = apiKeys["total"]
+
+      // Adding 1 because Jan starts from 0 in JS
+      const todayMonth = today.getMonth() + 1
+
+      Array.from(document.getElementsByClassName("currentMonthName")).forEach(ele => {
+        ele.textContent = monthFullNames[todayMonth]
+      })
+
+      // Ready current month charts
+      const currentMonthData = apiData.filter(data => data[monthKey] === todayMonth)
+
+      currentMonthData.forEach(data => {
+        const categoryName = getCategoryName(data[categoryKey])
+        const dayNumber = data[dayKey]
+
+        if (!categoryMap.has(categoryName)) {
+          categoryMap.set(categoryName, null)
+        }
+
+        if (!dayMap.has(dayNumber)) {
+          dayMap.set(dayNumber, null)
+        }
+        categoryMap.set(categoryName, categoryMap.get(categoryName) + data[totalKey])
+        dayMap.set(dayNumber, dayMap.get(dayNumber) + data[totalKey])
+      })
+
+      pieChart(monthCategoryCanvas, "Current Month Category Expense",
+          Array.from(categoryMap.keys()), Array.from(categoryMap.values()))
+      simpleBarChart(monthDayCanvas, "Current Month Day Expense",
+          Array.from(dayMap.keys()), Array.from(dayMap.values()))
+    }
+
+    const readyThisYearChart = apiData => {
+      const monthMap = new Map()
+      const categoryMap = new Map()
+
+      const monthKey = apiKeys["month"]
+      const categoryKey = apiKeys["category"]
+      const totalKey = apiKeys["total"]
+
+      apiData.forEach(data => {
+        const monthName = getMonthName(data[monthKey])
+        const categoryName = getCategoryName(data[categoryKey])
+
+        if (!categoryMap.has(categoryName)) {
+          categoryMap.set(categoryName, null)
+        }
+
+        if (!monthMap.has(monthName)) {
+          monthMap.set(monthName, null)
+        }
+
+        categoryMap.set(categoryName, categoryMap.get(categoryName) + data[totalKey])
+        monthMap.set(monthName, monthMap.get(monthName) + data[totalKey])
+      })
+      pieChart(yearCategoryCanvas, "Current Year Category Expense",
+          Array.from(categoryMap.keys()), Array.from(categoryMap.values()))
+      pieChart(yearMonthCanvas, "Current Year Month Expense",
+          Array.from(monthMap.keys()), Array.from(monthMap.values()))
+    }
+
+    const compareWithLastYear = (thisYearData, lastYearData) => {
+      const thisYear = today.getFullYear()
+      const lastYear = thisYear - 1
+
+      // {name: {year: value}}
+      const monthMap = new Map()
+
+      Object.keys(monthNames).forEach(key => {
+        monthMap.set(monthNames[key], new Map())
+        monthMap.get(monthNames[key]).set(thisYear, null)
+        monthMap.get(monthNames[key]).set(lastYear, null)
+      })
+
+      const categoryMap = new Map()
+
+      const monthKey = apiKeys["month"]
+      const categoryKey = apiKeys["category"]
+      const yearKey = apiKeys["year"]
+      const totalKey = apiKeys["total"]
+
+      thisYearData.forEach(data => {
+        const categoryName = getCategoryName(data[categoryKey])
+        const monthName = getMonthName(data[monthKey])
+
+        if (!categoryMap.has(categoryName)) {
+          categoryMap.set(categoryName, new Map())
+          categoryMap.get(categoryName).set(thisYear, null)
+          categoryMap.get(categoryName).set(lastYear, null)
+        }
+
+        categoryMap.get(categoryName).set(thisYear, categoryMap.get(categoryName).get(thisYear) + data[totalKey])
+        monthMap.get(monthName).set(thisYear, monthMap.get(monthName).get(thisYear) + data[totalKey])
+      })
+
+      lastYearData.forEach(data => {
+        if (data[yearKey] == lastYear) {
+          const categoryName = getCategoryName(data[categoryKey])
+          const monthName = getMonthName(data[monthKey])
+
+          if (!categoryMap.has(categoryName)) {
+            categoryMap.set(categoryName, new Map())
+            categoryMap.get(categoryName).set(thisYear, null)
+            categoryMap.get(categoryName).set(lastYear, null)
+          }
+
+          categoryMap.get(categoryName).set(lastYear, categoryMap.get(categoryName).get(lastYear) + data[totalKey])
+          monthMap.get(monthName).set(lastYear, monthMap.get(monthName).get(lastYear) + data[totalKey])
+        }
+      })
+
+      console.log(Array.from(categoryMap.values()))
+      console.log(Array.from(monthMap.values()))
+
+      console.log((() => {
+        const tonty_bone = []
+        const tonty = []
+        Array.from(categoryMap.values()).forEach(data => {
+          tonty_bone.push(data.get(2021))
+          tonty.push(data.get(2020))
+        })
+
+        return [tonty, tonty_bone]
+      })())
+    }
+
+    fetch("http://localhost:8000/expense/api/analysis/")
+        .then(resp => resp.json())
+        .then(resp => {
+          const thisYearData = resp["month_day_category"]
+          const lastYearsData = resp["year_month_category"]
+          // Month Category
+          // Month Day
+          readyThisMonthlyChart(thisYearData);
+          // Year Category
+          // Year Month
+          readyThisYearChart(thisYearData);
+          // Previous Year Category
+          // Previous Year Month
+          compareWithLastYear(thisYearData, lastYearsData)
+          {#chart_today.data.labels = chartData.labels#}
+          {#chart_today.data.datasets[0].label = "Day"#}
+          {#chart_today.data.datasets[0].data = chartData.dataset#}
+          {#chart_today.update();#}
+        });
+  })
+</script>
