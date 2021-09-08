@@ -40,6 +40,12 @@
                   <i class="fas fa-history"></i>&nbsp;History
                 </a>
               </li>
+              <li class="nav-item fw-bold">
+                <a id="navAnalysis" class="nav-link"
+                   href="{% url 'expense:analysis' %}">
+                  <i class="fas fa-history"></i>&nbsp;Analysis
+                </a>
+              </li>
             </ul>
 
             <ul class="navbar-nav ms-auto">
@@ -90,6 +96,8 @@
           activeNavId = "navRegister";
         } else if (urlPath.endsWith("/history/")) {
           activeNavId = "navHistory";
+        } else if (urlPath.endsWith("/analysis/")) {
+          activeNavId = "navAnalysis";
         }
 
         document.getElementById(activeNavId).classList.add("active");

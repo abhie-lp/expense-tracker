@@ -90,3 +90,9 @@ def add_expense_view(request):
         "this_year": this_last_year.this, "last_year": this_last_year.last,
         "latest_10_sum": latest_10_total["amount__sum"]
     })
+
+
+@login_required
+def analysis_view(request):
+    """View for graphs on expense"""
+    return render(request, "tracker/analysis.html")
