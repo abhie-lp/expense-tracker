@@ -6,7 +6,7 @@
     const yearCategoryCanvas = "year_category"
     const yearMonthCanvas = "year_month"
     const dailyInYearCanvas = "daily_expense_in_year"
-    const compareLastYearMonthlyCanvas = "compare_last_year_monthly"
+    const monthlyExpenseIn5Years = "monthly_expense_in_5_years"
 
     const backgroundColors = [
       'rgb(255, 99, 132)',
@@ -273,6 +273,39 @@
       comparisonLineChart(dailyInYearCanvas, DAYSARRAY, [...monthMap.keys()], [...monthMap.values()])
     }
 
+    const monthlyExpenseLast5Years = (thisYearData, lastYearsData) => {
+      const yearMap = new Map()
+
+      yearMap.set(today.getFullYear(), new Array(12))
+
+      for (let i = 1; i < 5; i++) {
+        yearMap.set(today.getFullYear() - i, new Array(12))
+      }
+
+      const monthKey = apiKeys["month"]
+      const yearKey = apiKeys["year"]
+      const totalKey = apiKeys["total"]
+
+      const updateMonthDataForYear = (year, data) => {
+        const yearData = yearMap.get(year)
+        const monthIndex = data[monthKey] - 1
+        const currentMonthData = yearData[monthIndex]
+        yearData[monthIndex] = currentMonthData !== undefined ? currentMonthData + data[totalKey] : data[totalKey]
+      }
+
+      // Set this years data
+      const currentYear = today.getFullYear()
+      thisYearData.forEach(data => {
+        updateMonthDataForYear(currentYear, data)
+      })
+
+      lastYearsData.forEach(data => {
+        updateMonthDataForYear(data[yearKey], data)
+      })
+
+      comparisonLineChart(monthlyExpenseIn5Years, MONTHNAMES.slice(1), [...yearMap.keys()], [...yearMap.values()])
+    }
+
     fetch("http://localhost:8000/expense/api/analysis/")
         .then(resp => resp.json())
         .then(resp => {
@@ -287,6 +320,7 @@
           // Previous Year Category
           // Previous Year Month
           dailyExpenseYearlyChart(thisYearData)
+          monthlyExpenseLast5Years(thisYearData, lastYearsData)
           {#chart_today.data.labels = chartData.labels#}
           {#chart_today.data.datasets[0].label = "Day"#}
           {#chart_today.data.datasets[0].data = chartData.dataset#}
