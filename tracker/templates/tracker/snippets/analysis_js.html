@@ -306,7 +306,7 @@
       comparisonLineChart(monthlyExpenseIn5Years, MONTHNAMES.slice(1), [...yearMap.keys()], [...yearMap.values()])
     }
 
-    fetch("http://localhost:8000/expense/api/analysis/")
+    fetch(window.location.origin + "/expense/api/analysis/")
         .then(resp => resp.json())
         .then(resp => {
           const thisYearData = resp["month_day_category"]
