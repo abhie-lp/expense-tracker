@@ -28,7 +28,7 @@
         <div class="col-6 mb-1">
           <div class="card">
             <div class="card-body">
-              <h6 class="card-title">Expense in year category</h6>
+              <h6 class="card-title">Category Expense in <span class="currentYear"></span></h6>
               <canvas class="mx-auto" id="year_category" style="width: 100%" height="300"></canvas>
             </div>
           </div>
@@ -37,14 +37,18 @@
         <div class="col-6 mb-1">
           <div class="card">
             <div class="card-body">
-              <h6 class="card-title">Expense in year month</h6>
+              <h6 class="card-title">Monthly Expense in <span class="currentYear"></span></h6>
               <canvas class="mx-auto" id="year_month" style="width: 100%" height="300"></canvas>
             </div>
           </div>
         </div>
-        <div class="col-6">
-          Category comparison with last year
-          <canvas id="compare_last_year_category" style="width: 100%" height="300"></canvas>
+        <div class="col-12 mb-1">
+          <div class="card">
+            <div class="card-body">
+              <h6>Daily expense in <span class="currentYear"></span></h6>
+              <canvas id="daily_expense_in_year" style="width: 100%" height="380"></canvas>
+            </div>
+          </div>
         </div>
 
         <div class="col-6">

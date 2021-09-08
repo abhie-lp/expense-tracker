@@ -5,7 +5,7 @@
     const monthDayCanvas = "month_day"
     const yearCategoryCanvas = "year_category"
     const yearMonthCanvas = "year_month"
-    const compareLastYearCategoryCanvas = "compare_last_year_category"
+    const dailyInYearCanvas = "daily_expense_in_year"
     const compareLastYearMonthlyCanvas = "compare_last_year_monthly"
 
     const backgroundColors = [
@@ -49,46 +49,48 @@
       'rgb(255, 99, 132)',
       'rgb(54, 162, 235)',
       'rgb(255, 205, 86)',
-      "rgba(93,138,168, 1)",
-      "rgba(240,248,255, 1)",
-      "rgba(229,43,80, 1)",
-      "rgba(255,191,0, 1)",
-      "rgba(164,198,57, 1)",
-      "rgba(251,206,177, 1)",
-      "rgba(127,255,212, 1)",
-      "rgba(233,214,107, 1)",
-      "rgba(178,190,181, 1)",
-      "rgba(0,127,255, 1)",
-      "rgba(222,93,131, 1)",
-      "rgba(195,33,72, 1)",
-      "rgba(205,127,50, 1)",
-      "rgba(120,134,107, 1)",
-      "rgba(15,77,146, 1)",
-      "rgba(143,0,255, 1)",
-      "rgba(91,146,229, 1)",
-      "rgba(0,117,94, 1)",
-      "rgba(242,133,0, 1)",
-      "rgba(167,252,0, 1)",
-      "rgba(236,213,64, 1)",
-      "rgba(255,103,0, 1)",
-      "rgba(230,226,0, 1)",
-      "rgba(147,197,114, 1)",
-      "rgba(255,90,54, 1)",
-      "rgba(124,252,0, 1)",
-      "rgba(215,59,62, 1)",
-      "rgba(255,223,0, 1)",
-      "rgba(21,96,189, 1)",
-      "rgba(105,105,105, 1)",
-      "rgba(0,139,139, 1)",
+      "rgb(93,138,168)",
+      "rgb(240,248,255)",
+      "rgb(229,43,80)",
+      "rgb(255,191,0)",
+      "rgb(164,198,57)",
+      "rgb(251,206,177)",
+      "rgb(127,255,212)",
+      "rgb(233,214,107)",
+      "rgb(178,190,181)",
+      "rgb(0,127,255)",
+      "rgb(222,93,131)",
+      "rgb(195,33,72)",
+      "rgb(205,127,50)",
+      "rgb(120,134,107)",
+      "rgb(15,77,146)",
+      "rgb(143,0,255)",
+      "rgb(91,146,229)",
+      "rgb(0,117,94)",
+      "rgb(242,133,0)",
+      "rgb(167,252,0)",
+      "rgb(236,213,64)",
+      "rgb(255,103,0)",
+      "rgb(230,226,0)",
+      "rgb(147,197,114)",
+      "rgb(255,90,54)",
+      "rgb(124,252,0)",
+      "rgb(215,59,62)",
+      "rgb(255,223,0)",
+      "rgb(21,96,189)",
+      "rgb(105,105,105)",
+      "rgb(0,139,139)",
     ]
-    const monthNames = [
+    const MONTHNAMES = [
       null, 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
       'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
     ]
-    const monthFullNames = [
+    const MONTHFULLNAMES = [
       null, "January", "February", "March", "April", "May", "June", "July",
       "August", "September", "October", "November", "December"
     ]
+
+    const DAYSARRAY = [...Array(32).keys()].slice(1)
 
     const apiKeys = {
       "day": "date__day",
@@ -99,7 +101,6 @@
     }
 
     const pieChart = (canvasId, displayLabel, chartLabels, chartData) => {
-      console.log(canvasId, displayLabel)
       const chart = new Chart(document.getElementById(canvasId).getContext('2d'), {
         type: 'pie',
         data: {
@@ -147,7 +148,7 @@
       chart.update()
     }
 
-    const comparisonBarChart = (canvasId, displayLabels, chartLabels, chartDatas) => {
+    const comparisonLineChart = (canvasId, xLabels, displayLabels, chartDatas) => {
       const dataset = []
       displayLabels.forEach((displayLabel, labelIndex) => {
         dataset.push({
@@ -155,13 +156,14 @@
           data: chartDatas[labelIndex],
           backgroundColor: backgroundColors[labelIndex],
           borderColor: borderColors[labelIndex],
-          borderWidth: 1,
+          borderWidth: 2,
+          tension: .1,
         })
       })
       const chart = new Chart(document.getElementById(canvasId).getContext('2d'), {
-        type: 'bar',
+        type: 'line',
         data: {
-          labels: chartLabels,
+          labels: xLabels,
           datasets: dataset
         },
         options: {
@@ -172,7 +174,7 @@
     }
 
     const getCategoryName = name => name != null ? name : "Other"
-    const getMonthName = name => monthNames[name]
+    const getMonthName = name => MONTHNAMES[name]
 
     const readyThisMonthlyChart = apiData => {
       const dayMap = new Map()
@@ -185,9 +187,10 @@
 
       // Adding 1 because Jan starts from 0 in JS
       const todayMonth = today.getMonth() + 1
+      const currentMonthFullName = MONTHFULLNAMES[todayMonth]
 
       Array.from(document.getElementsByClassName("currentMonthName")).forEach(ele => {
-        ele.textContent = monthFullNames[todayMonth]
+        ele.textContent = currentMonthFullName
       })
 
       // Ready current month charts
@@ -208,9 +211,9 @@
         dayMap.set(dayNumber, dayMap.get(dayNumber) + data[totalKey])
       })
 
-      pieChart(monthCategoryCanvas, "Current Month Category Expense",
+      pieChart(monthCategoryCanvas, `${currentMonthFullName} Category Expense`,
           Array.from(categoryMap.keys()), Array.from(categoryMap.values()))
-      simpleBarChart(monthDayCanvas, "Current Month Day Expense",
+      simpleBarChart(monthDayCanvas, `${currentMonthFullName} Daily Expense`,
           Array.from(dayMap.keys()), Array.from(dayMap.values()))
     }
 
@@ -221,6 +224,10 @@
       const monthKey = apiKeys["month"]
       const categoryKey = apiKeys["category"]
       const totalKey = apiKeys["total"]
+
+      Array.from(document.getElementsByClassName("currentYear")).forEach(ele => {
+        ele.textContent = today.getFullYear().toString()
+      })
 
       apiData.forEach(data => {
         const monthName = getMonthName(data[monthKey])
@@ -237,75 +244,33 @@
         categoryMap.set(categoryName, categoryMap.get(categoryName) + data[totalKey])
         monthMap.set(monthName, monthMap.get(monthName) + data[totalKey])
       })
-      pieChart(yearCategoryCanvas, "Current Year Category Expense",
+      pieChart(yearCategoryCanvas, "Category Expense in " + today.getFullYear(),
           Array.from(categoryMap.keys()), Array.from(categoryMap.values()))
-      pieChart(yearMonthCanvas, "Current Year Month Expense",
+      pieChart(yearMonthCanvas, "Monthly Expense in " + today.getFullYear(),
           Array.from(monthMap.keys()), Array.from(monthMap.values()))
     }
 
-    const compareWithLastYear = (thisYearData, lastYearData) => {
-      const thisYear = today.getFullYear()
-      const lastYear = thisYear - 1
+    const dailyExpenseYearlyChart = (thisYearData) => {
 
-      // {name: {year: value}}
+      // {name: {Jan: Array(31)}}
       const monthMap = new Map()
 
-      Object.keys(monthNames).forEach(key => {
-        monthMap.set(monthNames[key], new Map())
-        monthMap.get(monthNames[key]).set(thisYear, null)
-        monthMap.get(monthNames[key]).set(lastYear, null)
+      MONTHNAMES.slice(1).forEach(name => {
+        monthMap.set(name, new Array(31))
       })
 
-      const categoryMap = new Map()
-
       const monthKey = apiKeys["month"]
-      const categoryKey = apiKeys["category"]
-      const yearKey = apiKeys["year"]
+      const dayKey = apiKeys["day"]
       const totalKey = apiKeys["total"]
 
       thisYearData.forEach(data => {
-        const categoryName = getCategoryName(data[categoryKey])
         const monthName = getMonthName(data[monthKey])
-
-        if (!categoryMap.has(categoryName)) {
-          categoryMap.set(categoryName, new Map())
-          categoryMap.get(categoryName).set(thisYear, null)
-          categoryMap.get(categoryName).set(lastYear, null)
-        }
-
-        categoryMap.get(categoryName).set(thisYear, categoryMap.get(categoryName).get(thisYear) + data[totalKey])
-        monthMap.get(monthName).set(thisYear, monthMap.get(monthName).get(thisYear) + data[totalKey])
+        const monthData = monthMap.get(monthName)
+        const dayDataOfMonthInMap = monthData[data[dayKey]-1]
+        monthData[data[dayKey]-1] = dayDataOfMonthInMap !== undefined ? dayDataOfMonthInMap + data[totalKey] : data[totalKey]
       })
 
-      lastYearData.forEach(data => {
-        if (data[yearKey] == lastYear) {
-          const categoryName = getCategoryName(data[categoryKey])
-          const monthName = getMonthName(data[monthKey])
-
-          if (!categoryMap.has(categoryName)) {
-            categoryMap.set(categoryName, new Map())
-            categoryMap.get(categoryName).set(thisYear, null)
-            categoryMap.get(categoryName).set(lastYear, null)
-          }
-
-          categoryMap.get(categoryName).set(lastYear, categoryMap.get(categoryName).get(lastYear) + data[totalKey])
-          monthMap.get(monthName).set(lastYear, monthMap.get(monthName).get(lastYear) + data[totalKey])
-        }
-      })
-
-      console.log(Array.from(categoryMap.values()))
-      console.log(Array.from(monthMap.values()))
-
-      console.log((() => {
-        const tonty_bone = []
-        const tonty = []
-        Array.from(categoryMap.values()).forEach(data => {
-          tonty_bone.push(data.get(2021))
-          tonty.push(data.get(2020))
-        })
-
-        return [tonty, tonty_bone]
-      })())
+      comparisonLineChart(dailyInYearCanvas, DAYSARRAY, [...monthMap.keys()], [...monthMap.values()])
     }
 
     fetch("http://localhost:8000/expense/api/analysis/")
@@ -321,7 +286,7 @@
           readyThisYearChart(thisYearData);
           // Previous Year Category
           // Previous Year Month
-          compareWithLastYear(thisYearData, lastYearsData)
+          dailyExpenseYearlyChart(thisYearData)
           {#chart_today.data.labels = chartData.labels#}
           {#chart_today.data.datasets[0].label = "Day"#}
           {#chart_today.data.datasets[0].data = chartData.dataset#}
