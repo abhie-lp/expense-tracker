@@ -299,11 +299,15 @@
           })
             .then(res => {
               if (res.ok) {
-                window.location.reload()
+                return res.json();
               }
               return res.json().then(array => {
                 throw new Error(array[0]);
               })
+            })
+            .then(() => {
+              addCategoryForm.reset();
+              window.location.reload();
             })
             .catch(error => {
               document.getElementById("addCategoryFormNameError").textContent = error.message;
