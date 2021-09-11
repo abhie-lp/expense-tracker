@@ -6,8 +6,23 @@ from django.db.models import Sum
 
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
+from rest_framework.viewsets import ModelViewSet
 
 from .models import Expense
+from .serializers import CategorySerializer
+
+
+class CategoryViewSet(ModelViewSet):
+    """Category ViewSet to manage user categories"""
+    serializer_class = CategorySerializer
+
+    def get_queryset(self):
+        """All categories for the current user"""
+        return self.request.user.category_set.all()
+
+    def perform_create(self, serializer: CategorySerializer):
+        """Override to set logged-in user for category user field"""
+        serializer.save(user_id=self.request.user.id)
 
 
 @api_view()

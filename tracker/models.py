@@ -23,6 +23,8 @@ APPS = (
     ("OTHR", "Other")
 )
 
+TOTAL_USER_CATEGORIES = 5
+
 
 class Category(models.Model):
     """
