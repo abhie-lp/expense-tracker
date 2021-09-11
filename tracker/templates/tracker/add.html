@@ -63,7 +63,8 @@
           <div class="col-12">
             <div class="mb-2">
               {% with description=form.description %}
-                <label for="{{ description.auto_id }}" class="form-label fw-bold">
+                <label for="{{ description.auto_id }}"
+                       class="form-label fw-bold">
                   {{ description.label }}&nbsp;&ast;
                 </label>
                 <div class="input-group">
@@ -81,15 +82,23 @@
                   >{{ description.value | default_if_none:"" }}</textarea>
                 </div>
               {% endwith %}
-              </div>
+            </div>
           </div>
 
           <div class="col-12">
             <div class="mb-2">
               <label class="form-label fw-bold">
                 {{ form.category.label }}&nbsp;&ast;
-              </label><br>
-              {% include 'snippets/radio_as_buttons.html' with options=form.category btn_color="btn-outline-primary" id_label="id_category"%}
+              </label>
+              <span class="mt-1 me-1 float-end">
+                <i id="category_edit" class="fas fa-edit text-danger me-2"
+                   data-bs-toggle="modal" data-bs-target="#deleteCategoryModal"
+                   style="cursor: pointer"></i>
+                <i id="category_add" class="fas fa-plus text-primary"
+                   data-bs-toggle="modal" data-bs-target="#addCategoryModal"
+                   style="cursor: pointer"></i>
+              </span><br>
+              {% include 'snippets/radio_as_buttons.html' with options=form.category btn_color="btn-outline-primary" id_label="id_category" %}
             </div>
           </div>
 
@@ -98,7 +107,7 @@
               <label class="form-label fw-bold">
                 {{ form.method.label }}&nbsp;&ast;
               </label><br>
-              {% include 'snippets/radio_as_buttons.html' with options=form.method btn_color="btn-outline-success" id_label="id_method"%}
+              {% include 'snippets/radio_as_buttons.html' with options=form.method btn_color="btn-outline-success" id_label="id_method" %}
             </div>
           </div>
           <div class="col-12">
@@ -106,7 +115,7 @@
               <label class="form-label fw-bold">
                 {{ form.app.label }}
               </label><br>
-              {% include 'snippets/radio_as_buttons.html' with options=form.app btn_color="btn-outline-secondary" id_label="id_app"%}
+              {% include 'snippets/radio_as_buttons.html' with options=form.app btn_color="btn-outline-secondary" id_label="id_app" %}
             </div>
           </div>
         </div>
@@ -120,16 +129,86 @@
             <p>{{ form.non_field_errors }}</p>
           </div>
         {% endif %}
-        <button class="btn btn-success fw-bold w-100" type="submit">Submit</button>
+        <button class="btn btn-success fw-bold w-100" type="submit">Submit
+        </button>
       </form>
     </div>
 
-    <hr class="d-lg-none my-3" />
+    <!-- Add Category Modal -->
+    <div class="modal fade" id="addCategoryModal" tabindex="-1"
+         aria-labelledby="addCategoryModal" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Add a new category</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"
+                    aria-label="Close"></button>
+          </div>
+          <form id="addCategoryForm" method="post">
+            <div class="modal-body">
+              {% csrf_token %}
+              <label for="name" class="form-label fw-bold">
+                Name
+              </label>
+              <div class="input-group">
+                <div class="input-group-text">
+                  <i class="fas fa-list"></i>
+                </div>
+                <input
+                    type="text"
+                    class="form-control form-control-lg"
+                    id="categoryName"
+                    name="name"
+                    maxlength="20"
+                    required
+                    placeholder="Enter category name"
+                >
+              </div>
+              <span class="text-danger" id="addCategoryFormNameError"></span>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="w-25 btn btn-secondary"
+                      data-bs-dismiss="modal">Close
+              </button>
+              <button id="addCategoryFormAddButton" type="submit" class="w-25 btn btn-primary">
+                Add
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Add Category Modal -->
+    <div class="modal fade" id="deleteCategoryModal" tabindex="-1"
+         aria-labelledby="deleteCategoryModal" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Modify categories</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"
+                    aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            ...
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="w-25 btn btn-secondary"
+                    data-bs-dismiss="modal">Close
+            </button>
+            <button type="button" class="w-25 btn btn-primary">Save</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <hr class="d-lg-none my-3"/>
 
     <div class="col-12 col-lg-4">
       <h3 class="h3">Latest 10 expenses</h3>
       <div class="table-responsive">
-        <table class="table table-bordered table-hover table-borderless table-responsive table-light">
+        <table
+            class="table table-bordered table-hover table-borderless table-responsive table-light">
           <thead class="table-light">
             <tr>
               <th>Date</th>
@@ -141,7 +220,8 @@
             {% for exp in latest_10 %}
               <tr>
                 <td style="font-size: 14px">{{ exp.date }}</td>
-                <td style="font-size: 14px" class="text-break">{{ exp.description|slice:30 }}</td>
+                <td style="font-size: 14px"
+                    class="text-break">{{ exp.description|slice:30 }}</td>
                 <td style="font-size: 14px">{{ exp.amount }}</td>
               </tr>
             {% empty %}
@@ -160,7 +240,7 @@
       </div>
     </div>
 
-    <hr class="d-lg-none my-3" />
+    <hr class="d-lg-none my-3"/>
 
     <div class="col-12 col-lg-2">
       <h3 class="h3">Overview</h3>
@@ -184,3 +264,48 @@
     </div>
   </div>
 {% endblock content %}
+
+{% block script %}
+  <script>
+    window.onload = () => {
+      const originURL = window.location.origin;
+      // Event listener for addCategoryForm
+
+      const createSpinner = size => {
+        // <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+        const span = document.createElement("span");
+        span.classList.add("spinner-border", `spinner-border-${size}`);
+        span.setAttribute("role", "status");
+        span.setAttribute("aria-hidden", "true")
+        return span;
+      }
+
+      (() => {
+        const addCategoryForm = document.getElementById("addCategoryForm");
+        addCategoryForm.addEventListener("submit", event => {
+          event.preventDefault();
+          const formData = new FormData(document.getElementById("addCategoryForm"));
+          const spinner = createSpinner("sm");
+          const addButton = document.getElementById("addCategoryFormAddButton");
+          addButton.prepend(spinner);
+          fetch(`${originURL}/expense/api/category/`, {
+            method: "POST",
+            body: formData
+          })
+            .then(res => {
+              if (res.ok) {
+                window.location.reload()
+              }
+              return res.json().then(array => {
+                throw new Error(array[0]);
+              })
+            })
+            .catch(error => {
+              document.getElementById("addCategoryFormNameError").textContent = error.message;
+            })
+            .finally(() => spinner.remove())
+        });
+      })()
+    }
+  </script>
+{% endblock script %}
