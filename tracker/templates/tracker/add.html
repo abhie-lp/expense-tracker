@@ -290,7 +290,12 @@
           addButton.prepend(spinner);
           fetch(`${originURL}/expense/api/category/`, {
             method: "POST",
-            body: formData
+            credentials: "same-origin",
+            headers: {
+              'Content-Type': 'application/json',
+              "X-CSRFToken": getCookie("csrftoken"),
+            },
+            body: JSON.stringify(Object.fromEntries(formData))
           })
             .then(res => {
               if (res.ok) {
