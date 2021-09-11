@@ -74,7 +74,8 @@ class ExpenseForm(ModelForm):
     def __init__(self, request, *args, **kwargs):
         super(ExpenseForm, self).__init__(*args, **kwargs)
         self.fields["category"].choices = Category.objects.filter(
-            Q(default=True) | Q(user=request.user)).values_list("id", "name")
+            Q(default=True) | Q(user=request.user)
+        ).order_by("-default", "name").values_list("id", "name")
         self.fields["method"] = ChoiceField(choices=PAYMENT_METHOD, widget=RadioSelect(attrs={
             "autocomplete": "off", "class": "btn-check"
         }))
