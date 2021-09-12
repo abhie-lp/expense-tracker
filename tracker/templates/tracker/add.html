@@ -146,7 +146,7 @@
           </div>
           <form id="addCategoryForm" method="post">
             <div class="modal-body">
-{#              {% csrf_token %}#}
+              {#              {% csrf_token %}#}
               <label for="name" class="form-label fw-bold">
                 Name
               </label>
@@ -183,7 +183,7 @@
     <!-- Add Category Modal -->
     <div class="modal fade" id="deleteCategoryModal" tabindex="-1"
          aria-labelledby="deleteCategoryModal" aria-hidden="true">
-      <div class="modal-dialog">
+      <div class="modal-dialog modal-dialog-scrollable">
         <div class="modal-content">
           <div class="modal-header">
             <h5 class="modal-title">Modify categories</h5>
@@ -405,6 +405,7 @@
                   editButton.appendChild(createFontAwesomeIcon("fas fa-times"));
                   input.value = categoryNameSpan.textContent
                   categoryNameSpan.replaceWith(inputDiv);
+                  deleteButton.setAttribute("disabled", "")
                 } else {
                   editButton.setAttribute("data-edit", "true");
                   editButton.classList.replace("btn-dark", "btn-primary");
@@ -412,6 +413,7 @@
                   editButton.appendChild(createFontAwesomeIcon("far fa-edit"));
                   input.value = "";
                   inputDiv.replaceWith(categoryNameSpan);
+                  deleteButton.removeAttribute("disabled");
                 }
               })
 
@@ -448,8 +450,28 @@
                     editButton.setAttribute("data-edit", "true");
                     editButton.classList.replace("btn-dark", "btn-primary");
                     editButton.firstChild.remove();
-                    editButton.appendChild(createFontAwesomeIcon("far fa-edit"));
-                  })
+                    editButton.appendChild(createFontAwesomeIcon("far fa-edit"))
+                    deleteButton.removeAttribute("disabled");
+                  });
+              });
+
+              deleteButton.addEventListener("click", () => {
+                deleteButton.setAttribute("disabled", "")
+                fetch(`${origin}/expense/api/category/${id}/`, {
+                  method: "DELETE",
+                  credentials: "same-origin",
+                  headers: {
+                    'Content-Type': 'application/json',
+                    "X-CSRFToken": getCookie("csrftoken"),
+                  },
+                }).then(res => {
+                  if (res.ok) {
+                    categoryNameSpan.innerHTML = `<del>${categoryNameSpan.textContent}</del>`
+                    setTimeout(() => {
+                      li.remove();
+                    }, 500)
+                  }
+                })
               })
             })
           })
