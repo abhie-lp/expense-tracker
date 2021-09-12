@@ -92,7 +92,7 @@
               </label>
               <span class="mt-1 me-1 float-end">
                 <i id="category_edit" class="fas fa-edit text-danger me-2"
-                   data-bs-toggle="modal" data-bs-target="#deleteCategoryModal"
+                   data-bs-toggle="modal" data-bs-target="#modifyCategoryModal"
                    style="cursor: pointer"></i>
                 <i id="category_add" class="fas fa-plus text-primary"
                    data-bs-toggle="modal" data-bs-target="#addCategoryModal"
@@ -181,8 +181,8 @@
     </div>
 
     <!-- Add Category Modal -->
-    <div class="modal fade" id="deleteCategoryModal" tabindex="-1"
-         aria-labelledby="deleteCategoryModal" aria-hidden="true">
+    <div class="modal fade" id="modifyCategoryModal" tabindex="-1"
+         aria-labelledby="modifyCategoryModal" aria-hidden="true">
       <div class="modal-dialog modal-dialog-scrollable">
         <div class="modal-content">
           <div class="modal-header">
@@ -200,7 +200,7 @@
             <button type="button" class="w-25 btn btn-secondary"
                     data-bs-dismiss="modal">Close
             </button>
-            <button type="button" class="w-25 btn btn-primary">Save</button>
+            <button type="button" class="w-25 btn btn-primary" data-bs-dismiss="modal" disabled>Save</button>
           </div>
         </div>
       </div>
@@ -336,6 +336,7 @@
 
       (() => {
         const userCategoryList = document.getElementById("userCategoryList");
+        let altered = false;
         fetch(`${originURL}/expense/api/category/`)
           .then(res => res.json())
           .then(json => {
@@ -429,6 +430,19 @@
                 }
               })
 
+              const refreshPageOnHide = () => {
+                if (!altered) {
+                  const myModalEl = document.getElementById('modifyCategoryModal')
+                  altered = true;
+                  myModalEl.addEventListener('hide.bs.modal', function (event) {
+                    window.location.reload();
+                  });
+                  const buttons = myModalEl.querySelectorAll(".modal-footer button");
+                  buttons[0].remove();
+                  buttons[1].removeAttribute("disabled");
+                }
+              }
+
               tickButton.addEventListener("click", () => {
                 const updatedName = input.value;
                 fetch(`${origin}/expense/api/category/${id}/`, {
@@ -452,6 +466,8 @@
                     editButton.firstChild.remove();
                     editButton.appendChild(createFontAwesomeIcon("far fa-edit"))
                     deleteButton.removeAttribute("disabled");
+
+                    refreshPageOnHide();
                   });
               });
 
@@ -469,7 +485,9 @@
                     categoryNameSpan.innerHTML = `<del>${categoryNameSpan.textContent}</del>`
                     setTimeout(() => {
                       li.remove();
-                    }, 500)
+                    }, 500);
+
+                    refreshPageOnHide();
                   }
                 })
               })
