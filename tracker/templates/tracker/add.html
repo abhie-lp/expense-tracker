@@ -146,7 +146,7 @@
           </div>
           <form id="addCategoryForm" method="post">
             <div class="modal-body">
-              {% csrf_token %}
+{#              {% csrf_token %}#}
               <label for="name" class="form-label fw-bold">
                 Name
               </label>
@@ -170,7 +170,8 @@
               <button type="button" class="w-25 btn btn-secondary"
                       data-bs-dismiss="modal">Close
               </button>
-              <button id="addCategoryFormAddButton" type="submit" class="w-25 btn btn-primary">
+              <button id="addCategoryFormAddButton" type="submit"
+                      class="w-25 btn btn-primary">
                 Add
               </button>
             </div>
@@ -190,7 +191,10 @@
                     aria-label="Close"></button>
           </div>
           <div class="modal-body">
-            ...
+            <div class="card">
+              <ul id="userCategoryList" class="list-group list-group-flush">
+              </ul>
+            </div>
           </div>
           <div class="modal-footer">
             <button type="button" class="w-25 btn btn-secondary"
@@ -280,6 +284,20 @@
         return span;
       }
 
+      const createFontAwesomeIcon = iconClass => {
+        const icon = document.createElement("i");
+        icon.className = iconClass;
+        return icon;
+      }
+
+      const createFontAwesomeButton = (btnClass, iconClass) => {
+        const btn = document.createElement("button");
+        btn.className = btnClass;
+        btn.appendChild(createFontAwesomeIcon(iconClass));
+        return btn;
+      }
+
+      // Handle addCategoryForm
       (() => {
         const addCategoryForm = document.getElementById("addCategoryForm");
         addCategoryForm.addEventListener("submit", event => {
@@ -314,7 +332,128 @@
             })
             .finally(() => spinner.remove())
         });
-      })()
+      })();
+
+      (() => {
+        const userCategoryList = document.getElementById("userCategoryList");
+        fetch(`${originURL}/expense/api/category/`)
+          .then(res => res.json())
+          .then(json => {
+            /*
+            <li class="list-group-item">
+              <span class="float-start">Category 2asdasdasd 1 </span>
+              <span class="float-end">
+                <button class="btn btn-sm btn-primary">
+                  <i class="far fa-edit"></i>
+                </button>
+                <button class="btn btn-sm btn-success">
+                  <i class="far fa-check-circle"></i>
+                </button>
+                <button class="btn btn-sm btn-danger">
+                  <i class="fas fa-trash"></i>
+                </button>
+              </span>
+            </li>
+           */
+
+            /*
+            [
+              {
+                  "id": 7,
+                  "name": "Party",
+                  "user": "mikasa"
+              },
+            ]
+           */
+            json.forEach(category => {
+              let id = category["id"];
+              const li = document.createElement("li");
+              li.className = "list-group-item";
+              const categoryNameSpan = document.createElement("span");
+              categoryNameSpan.textContent = category["name"];
+              categoryNameSpan.classList.add("float-start");
+
+              const inputDiv = document.createElement("div");
+              inputDiv.classList.add("float-start");
+              const input = document.createElement("input");
+              input.type = "text";
+              input.className = "form-control form-control-sm";
+              input.maxLength = 20;
+              inputDiv.appendChild(input);
+
+              const buttonSpan = document.createElement("div");
+              buttonSpan.classList.add("float-end");
+              const editButton = createFontAwesomeButton("btn btn-sm btn-primary me-1", "far fa-edit");
+              editButton.setAttribute("data-edit", "true");
+              const tickButton = createFontAwesomeButton("btn btn-sm btn-success me-1", "far fa-check-circle");
+              tickButton.setAttribute("disabled", "");
+              const deleteButton = createFontAwesomeButton("btn btn-sm btn-danger", "fas fa-trash");
+
+              buttonSpan.appendChild(editButton);
+              buttonSpan.appendChild(tickButton);
+              buttonSpan.appendChild(deleteButton);
+              li.appendChild(categoryNameSpan);
+              li.appendChild(buttonSpan);
+              userCategoryList.appendChild(li);
+
+              editButton.addEventListener("click", () => {
+                const btnStatus = editButton.dataset["edit"];
+                if (btnStatus === "true") {
+                  editButton.setAttribute("data-edit", "false");
+                  editButton.classList.replace("btn-primary", "btn-dark");
+                  editButton.firstChild.remove();
+                  editButton.appendChild(createFontAwesomeIcon("fas fa-times"));
+                  input.value = categoryNameSpan.textContent
+                  categoryNameSpan.replaceWith(inputDiv);
+                } else {
+                  editButton.setAttribute("data-edit", "true");
+                  editButton.classList.replace("btn-dark", "btn-primary");
+                  editButton.firstChild.remove();
+                  editButton.appendChild(createFontAwesomeIcon("far fa-edit"));
+                  input.value = "";
+                  inputDiv.replaceWith(categoryNameSpan);
+                }
+              })
+
+              input.addEventListener("keyup", () => {
+                if (input.value === categoryNameSpan.textContent || input.value === "") {
+                  if (!tickButton.hasAttribute("disabled")) {
+                    tickButton.setAttribute("disabled", "")
+                  }
+                } else {
+                  if (tickButton.hasAttribute("disabled")) {
+                    tickButton.removeAttribute("disabled");
+                  }
+                }
+              })
+
+              tickButton.addEventListener("click", () => {
+                const updatedName = input.value;
+                fetch(`${origin}/expense/api/category/${id}/`, {
+                  method: "PUT",
+                  credentials: "same-origin",
+                  headers: {
+                    'Content-Type': 'application/json',
+                    "X-CSRFToken": getCookie("csrftoken"),
+                  },
+                  body: JSON.stringify({"name": updatedName})
+                })
+                  .then(res => res.json())
+                  .then(json => {
+                    categoryNameSpan.textContent = json["name"];
+                    if (!tickButton.hasAttribute("disabled")) {
+                      tickButton.setAttribute("disabled", "")
+                    }
+                    inputDiv.replaceWith(categoryNameSpan);
+                    editButton.setAttribute("data-edit", "true");
+                    editButton.classList.replace("btn-dark", "btn-primary");
+                    editButton.firstChild.remove();
+                    editButton.appendChild(createFontAwesomeIcon("far fa-edit"));
+                  })
+              })
+            })
+          })
+      })();
     }
   </script>
 {% endblock script %}
