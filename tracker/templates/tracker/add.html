@@ -406,7 +406,7 @@
                   editButton.appendChild(createFontAwesomeIcon("fas fa-times"));
                   input.value = categoryNameSpan.textContent
                   categoryNameSpan.replaceWith(inputDiv);
-                  deleteButton.setAttribute("disabled", "")
+                  deleteButton.setAttribute("disabled", "");
                 } else {
                   editButton.setAttribute("data-edit", "true");
                   editButton.classList.replace("btn-dark", "btn-primary");
@@ -414,6 +414,7 @@
                   editButton.appendChild(createFontAwesomeIcon("far fa-edit"));
                   input.value = "";
                   inputDiv.replaceWith(categoryNameSpan);
+                  tickButton.setAttribute("disabled", "");
                   deleteButton.removeAttribute("disabled");
                 }
               })
