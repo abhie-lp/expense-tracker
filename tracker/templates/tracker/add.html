@@ -94,9 +94,6 @@
                 <i id="category_edit" class="fas fa-edit text-danger me-2"
                    data-bs-toggle="modal" data-bs-target="#modifyCategoryModal"
                    style="cursor: pointer"></i>
-                <i id="category_add" class="fas fa-plus text-primary"
-                   data-bs-toggle="modal" data-bs-target="#addCategoryModal"
-                   style="cursor: pointer"></i>
               </span><br>
               {% include 'snippets/radio_as_buttons.html' with options=form.category btn_color="btn-outline-primary" id_label="id_category" %}
             </div>
@@ -134,53 +131,7 @@
       </form>
     </div>
 
-    <!-- Add Category Modal -->
-    <div class="modal fade" id="addCategoryModal" tabindex="-1"
-         aria-labelledby="addCategoryModal" aria-hidden="true">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title">Add a new category</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal"
-                    aria-label="Close"></button>
-          </div>
-          <form id="addCategoryForm" method="post">
-            <div class="modal-body">
-              {#              {% csrf_token %}#}
-              <label for="name" class="form-label fw-bold">
-                Name
-              </label>
-              <div class="input-group">
-                <div class="input-group-text">
-                  <i class="fas fa-list"></i>
-                </div>
-                <input
-                    type="text"
-                    class="form-control form-control-lg"
-                    id="categoryName"
-                    name="name"
-                    maxlength="20"
-                    required
-                    placeholder="Enter category name"
-                >
-              </div>
-              <span class="text-danger" id="addCategoryFormNameError"></span>
-            </div>
-            <div class="modal-footer">
-              <button type="button" class="w-25 btn btn-secondary"
-                      data-bs-dismiss="modal">Close
-              </button>
-              <button id="addCategoryFormAddButton" type="submit"
-                      class="w-25 btn btn-primary">
-                Add
-              </button>
-            </div>
-          </form>
-        </div>
-      </div>
-    </div>
-
-    <!-- Add Category Modal -->
+    <!-- Modify Category Modal -->
     <div class="modal fade" id="modifyCategoryModal" tabindex="-1"
          aria-labelledby="modifyCategoryModal" aria-hidden="true">
       <div class="modal-dialog modal-dialog-scrollable">
@@ -297,47 +248,13 @@
         return btn;
       }
 
-      // Handle addCategoryForm
-      (() => {
-        const addCategoryForm = document.getElementById("addCategoryForm");
-        addCategoryForm.addEventListener("submit", event => {
-          event.preventDefault();
-          const formData = new FormData(document.getElementById("addCategoryForm"));
-          const spinner = createSpinner("sm");
-          const addButton = document.getElementById("addCategoryFormAddButton");
-          addButton.prepend(spinner);
-          fetch(`${originURL}/expense/api/category/`, {
-            method: "POST",
-            credentials: "same-origin",
-            headers: {
-              'Content-Type': 'application/json',
-              "X-CSRFToken": getCookie("csrftoken"),
-            },
-            body: JSON.stringify(Object.fromEntries(formData))
-          })
-            .then(res => {
-              if (res.ok) {
-                return res.json();
-              }
-              return res.json().then(array => {
-                throw new Error(array[0]);
-              })
-            })
-            .then(() => {
-              addCategoryForm.reset();
-              window.location.reload();
-            })
-            .catch(error => {
-              document.getElementById("addCategoryFormNameError").textContent = error.message;
-            })
-            .finally(() => spinner.remove())
-        });
-      })();
-
       (() => {
         const userCategoryList = document.getElementById("userCategoryList");
         let altered = false;
-        fetch(`${originURL}/expense/api/category/`)
+        const baseCategoryAPI = `${originURL}/expense/api/category`;
+        const maxUserCategories = 5;
+        let addButtonDisplayed = false;
+        fetch(baseCategoryAPI + "/")
           .then(res => res.json())
           .then(json => {
             /*
@@ -366,7 +283,102 @@
               },
             ]
            */
-            json.forEach(category => {
+
+            const refreshPageOnHide = () => {
+              if (!altered) {
+                const myModalEl = document.getElementById('modifyCategoryModal')
+                altered = true;
+                myModalEl.addEventListener('hide.bs.modal', function (event) {
+                  window.location.reload();
+                });
+                const buttons = myModalEl.querySelectorAll(".modal-footer button");
+                buttons[0].remove();
+                buttons[1].removeAttribute("disabled");
+              }
+            }
+
+            const createAddButton = () => {
+              if (userCategoryList.getElementsByTagName("li").length < maxUserCategories && !addButtonDisplayed) {
+                const addButton = createFontAwesomeButton("btn btn-primary btn-sm mt-2", "fas fa-2x fa-plus-square");
+                addButton.addEventListener("click", () => {
+
+                  // Remove the add button and set addButtonDisaplayed to false
+                  addButton.remove();
+                  addButtonDisplayed = false;
+
+                  const li = document.createElement("li");
+                  li.className = "list-group-item";
+                  const newCategoryInput = createCategoryInput();
+                  const div = document.createElement("div");
+                  div.className = "float-start"
+                  const buttonDiv = document.createElement("div");
+                  buttonDiv.className = "float-end";
+                  const tickButton = createFontAwesomeButton("btn btn-success btn-sm me-2", "fas fa-check");
+                  tickButton.setAttribute("disabled", "");
+                  const crossButton = createFontAwesomeButton("btn btn-dark btn-sm", "fas fa-window-close");
+                  buttonDiv.appendChild(tickButton);
+                  buttonDiv.appendChild(crossButton);
+                  div.appendChild(newCategoryInput);
+                  li.appendChild(div);
+                  li.appendChild(buttonDiv);
+                  userCategoryList.appendChild(li);
+
+                  crossButton.addEventListener("click", () => {
+                    li.remove();
+                    createAddButton();
+                  })
+
+                  newCategoryInput.addEventListener("keyup", () => {
+                    if (newCategoryInput.value !== "") {
+                      if (tickButton.hasAttribute("disabled")) {
+                        tickButton.removeAttribute("disabled");
+                      }
+                    } else {
+                      if (!tickButton.hasAttribute("disabled")) {
+                        tickButton.setAttribute("disabled", "");
+                      }
+                    }
+                  })
+
+                  tickButton.addEventListener("click", () => {
+                    tickButton.setAttribute("disabled", "");
+                    fetch(baseCategoryAPI + "/", {
+                      method: "POST",
+                      credentials: "same-origin",
+                      headers: {
+                        'Content-Type': 'application/json',
+                        "X-CSRFToken": getCookie("csrftoken"),
+                      },
+                      body: JSON.stringify({"name": newCategoryInput.value})
+                    })
+                      .then(res => res.json())
+                      .then(json => {
+                        refreshPageOnHide();
+                        crossButton.setAttribute("disabled", "");
+                        tickButton.firstChild.replaceWith(createFontAwesomeIcon("fas fa-check-double"));
+                        setTimeout(() => {
+                          li.replaceWith(createCategoryElement(json));
+                        }, 400)
+                      })
+                  })
+
+                  // Calling createAddButton again to check if it is required again.
+                  createAddButton();
+                })
+                userCategoryList.appendChild(addButton);
+                addButtonDisplayed = true;
+              }
+            };
+
+            const createCategoryInput = () => {
+              const input = document.createElement("input");
+              input.type = "text";
+              input.className = "form-control form-control-sm";
+              input.maxLength = 20;
+              return input;
+            }
+
+            const createCategoryElement = category => {
               let id = category["id"];
               const li = document.createElement("li");
               li.className = "list-group-item";
@@ -376,10 +388,7 @@
 
               const inputDiv = document.createElement("div");
               inputDiv.classList.add("float-start");
-              const input = document.createElement("input");
-              input.type = "text";
-              input.className = "form-control form-control-sm";
-              input.maxLength = 20;
+              const input = createCategoryInput();
               inputDiv.appendChild(input);
 
               const buttonSpan = document.createElement("div");
@@ -395,7 +404,6 @@
               buttonSpan.appendChild(deleteButton);
               li.appendChild(categoryNameSpan);
               li.appendChild(buttonSpan);
-              userCategoryList.appendChild(li);
 
               editButton.addEventListener("click", () => {
                 const btnStatus = editButton.dataset["edit"];
@@ -431,22 +439,9 @@
                 }
               })
 
-              const refreshPageOnHide = () => {
-                if (!altered) {
-                  const myModalEl = document.getElementById('modifyCategoryModal')
-                  altered = true;
-                  myModalEl.addEventListener('hide.bs.modal', function (event) {
-                    window.location.reload();
-                  });
-                  const buttons = myModalEl.querySelectorAll(".modal-footer button");
-                  buttons[0].remove();
-                  buttons[1].removeAttribute("disabled");
-                }
-              }
-
               tickButton.addEventListener("click", () => {
                 const updatedName = input.value;
-                fetch(`${origin}/expense/api/category/${id}/`, {
+                fetch(`${baseCategoryAPI}/${id}/`, {
                   method: "PUT",
                   credentials: "same-origin",
                   headers: {
@@ -474,7 +469,7 @@
 
               deleteButton.addEventListener("click", () => {
                 deleteButton.setAttribute("disabled", "")
-                fetch(`${origin}/expense/api/category/${id}/`, {
+                fetch(`${baseCategoryAPI}/${id}/`, {
                   method: "DELETE",
                   credentials: "same-origin",
                   headers: {
@@ -486,14 +481,25 @@
                     categoryNameSpan.innerHTML = `<del>${categoryNameSpan.textContent}</del>`
                     setTimeout(() => {
                       li.remove();
+                      createAddButton();
                     }, 500);
-
                     refreshPageOnHide();
                   }
                 })
               })
+
+              return li;
+            };
+
+            json.forEach(category => {
+              userCategoryList.appendChild(createCategoryElement(category));
+
             })
-          })
+
+            if (userCategoryList.getElementsByTagName("li").length < 5) {
+              createAddButton();
+            }
+          });
       })();
     }
   </script>
