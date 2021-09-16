@@ -66,7 +66,7 @@ class ExpenseForm(ModelForm):
 
     class Meta:
         model = Expense
-        fields = "amount", "description", "date", "method", "app"
+        fields = "amount", "description", "date", "method", "app", "attachment"
         widgets = {
             "description": Textarea()
         }

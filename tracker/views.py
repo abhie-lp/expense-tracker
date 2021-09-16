@@ -64,7 +64,7 @@ def expense_history(request):
 def add_expense_view(request):
     """View add a expense"""
     if request.method == "POST":
-        form = ExpenseForm(request, request.POST)
+        form = ExpenseForm(request, request.POST, request.FILES)
         if form.is_valid():
             expense = form.save(commit=False)
             expense.user_id = request.user.id
