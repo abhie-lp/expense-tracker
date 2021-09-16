@@ -1,10 +1,11 @@
 """Models for tracker app"""
 
-from datetime import date
+from datetime import date, datetime
 from django.db import models
 from users.models import User
 
 from .managers import ExpenseManager
+from .validators import validate_attachment
 
 PAYMENT_METHOD = (
     ("UPI", "UPI"),
@@ -46,6 +47,14 @@ class Category(models.Model):
         return f"{self.name}"
 
 
+def expense_attachment(instance: "Expense", filename: str):
+    """Return the filepath for the attachment to be stored: expense/21/09/mikasa/01/picture.png"""
+    today = datetime.today()
+    filename = today.strftime("%H%M%S") + "_" + filename.rsplit(".", 1)[0][:10] + "." + \
+        filename.rsplit(".", 1)[1]
+    return f"expense/{today.strftime('%y/%m')}/{instance.user.username}/{today.day}/{filename}"
+
+
 class Expense(models.Model):
     """
     Store the expenses
@@ -66,6 +75,8 @@ class Expense(models.Model):
     method = models.CharField("Payment Method", choices=PAYMENT_METHOD, db_index=True, max_length=4)
     app = models.CharField("Application", choices=APPS, max_length=4, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
+    attachment = models.FileField(upload_to=expense_attachment, null=True, blank=True,
+                                  validators=[validate_attachment])
 
     objects = ExpenseManager()
 

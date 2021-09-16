@@ -12,7 +12,7 @@ urlpatterns = [
     path("expense/", include("tracker.urls", namespace="expense")),
     path('admin/', admin.site.urls),
     path("", add_expense_view, name="add_expense"),
-] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 if settings.DEBUG:
     import debug_toolbar

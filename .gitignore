@@ -4,3 +4,4 @@ __pycache__
 !default.env
 *.sqlite3
 temp
+media
